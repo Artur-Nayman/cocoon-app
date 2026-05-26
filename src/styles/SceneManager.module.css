@@ -1,0 +1,227 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.8rem;
+}
+
+.field label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.input {
+  width: 100%;
+  padding: 0.65rem;
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  box-sizing: border-box;
+  outline: none;
+  background: var(--input-bg);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.1);
+}
+
+.inputRow {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.dropdownWrapper {
+  position: relative;
+}
+
+.resourceBtn {
+  background: var(--primary-color);
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.resourceBtn:hover {
+  background: color-mix(in srgb, var(--primary-color) 80%, #000);
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  background: var(--dropdown-bg);
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  min-width: 200px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 0.3rem;
+}
+
+.dropdownEmpty {
+  padding: 0.6rem;
+  font-size: 0.75rem;
+  opacity: 0.5;
+  text-align: center;
+}
+
+.dropdownItem {
+  background: none;
+  border: none;
+  padding: 0.5rem 0.7rem;
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  text-align: left;
+  transition: background var(--transition);
+}
+
+.dropdownItem:hover {
+  background: var(--bg-color);
+}
+
+.dropdownName {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdownType {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  background: var(--primary-color);
+  color: white;
+  flex-shrink: 0;
+}
+
+.btn {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  margin-top: 0.3rem;
+  width: 100%;
+}
+
+.btn:hover {
+  background: #e67e00;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.7rem;
+}
+
+.empty {
+  text-align: center;
+  opacity: 0.5;
+  font-size: 0.85rem;
+  padding: 1rem 0;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.55rem;
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  outline: none;
+  background: var(--input-bg);
+  box-sizing: border-box;
+  margin-bottom: 0.6rem;
+}
+
+.searchInput:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.1);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.listItem {
+  background: var(--bg-color);
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.listItem:hover {
+  background: var(--hover-bg);
+}
+
+.listItemTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.listItemName {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  opacity: 0.3;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  transition: opacity var(--transition);
+}
+
+.deleteBtn:hover {
+  opacity: 0.8;
+}
+
+.listItemMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.7rem;
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  opacity: 0.55;
+}

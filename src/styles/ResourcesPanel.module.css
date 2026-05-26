@@ -1,0 +1,241 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.65rem;
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  outline: none;
+  background: var(--input-bg);
+}
+
+.input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.1);
+}
+
+.urlRow {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.browseBtn {
+  background: var(--primary-color);
+  border: none;
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+
+.browseBtn:hover {
+  background: color-mix(in srgb, var(--primary-color) 80%, #000);
+}
+
+.groupLabel {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  opacity: 0.5;
+  margin-top: 0.2rem;
+}
+
+.btnRow {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.pill {
+  flex: 1;
+  background: none;
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-color);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.pill:hover {
+  opacity: 0.9;
+}
+
+.pillActive {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  opacity: 1;
+}
+
+.addBtn {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.addBtn:hover {
+  background: #e67e00;
+}
+
+.empty {
+  text-align: center;
+  opacity: 0.5;
+  font-size: 0.85rem;
+  padding: 1rem 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-color);
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  gap: 0.5rem;
+}
+
+.itemInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.itemName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.15rem 0.4rem;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.badge.youtube,
+.badge.youtube { background: #ff4444; color: white; }
+.badge.direct { background: var(--primary-color); color: white; }
+.badge.file { background: #4a90d9; color: white; }
+
+.badge.visual { background: #9b59b6; color: white; }
+.badge.melodic { background: #e67e22; color: white; }
+.badge.atmospheric { background: #27ae60; color: white; }
+.badgeCategory {
+  background: var(--primary-color);
+  color: white;
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.55rem;
+  border: 1px solid var(--primary-color);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  outline: none;
+  background: var(--input-bg);
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.1);
+}
+
+.filterRow {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.filterPill {
+  flex: 1;
+  background: none;
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  padding: 0.35rem 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-color);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.filterPill:hover { opacity: 0.9; }
+
+.filterPillActive {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  opacity: 1;
+}
+
+.count {
+  text-align: center;
+  font-size: 0.65rem;
+  opacity: 0.35;
+  margin-top: 0.5rem;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0.3;
+  color: var(--text-color);
+  padding: 0 0.3rem;
+  flex-shrink: 0;
+  transition: opacity var(--transition);
+}
+
+.deleteBtn:hover {
+  opacity: 1;
+  color: #ff4444;
+}
