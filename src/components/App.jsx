@@ -35,13 +35,17 @@ export default function App() {
   const [playing, setPlaying] = useState({ visual: true, melodic: true, atmospheric: true });
   const [masterVolume, setMasterVolume] = useState(100);
   const [backendStatus, setBackendStatus] = useState('unknown');
+  const [editingScene, setEditingScene] = useState(null);
   const [showTheme, setShowTheme] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('cocoon_theme') || 'light');
   const [bgType, setBgType] = useState(() => localStorage.getItem('cocoon_bgType') || '');
   const [bgValue, setBgValue] = useState(() => localStorage.getItem('cocoon_bgValue') || '');
   const [showVinyl, setShowVinyl] = useState(() => localStorage.getItem('cocoon_showVinyl') === 'true');
   const [showMusicName, setShowMusicName] = useState(() => localStorage.getItem('cocoon_showMusicName') === 'true');
+  const [maximized, setMaximized] = useState(false);
+  const [zenBgMode, setZenBgMode] = useState(() => localStorage.getItem('cocoon_zenBg') || 'dark');
   const autoLoaded = useRef(false);
+  const themeRef = useRef(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -74,6 +78,26 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('cocoon_showMusicName', showMusicName);
   }, [showMusicName]);
+
+  useEffect(() => {
+    if (!showTheme) return;
+    const handler = (e) => {
+      if (themeRef.current && !themeRef.current.contains(e.target)) {
+        setShowTheme(false);
+      }
+    };
+    const keyHandler = (e) => {
+      if (e.key === 'Escape') setShowTheme(false);
+    };
+    requestAnimationFrame(() => {
+      document.addEventListener('mousedown', handler);
+    });
+    document.addEventListener('keydown', keyHandler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('keydown', keyHandler);
+    };
+  }, [showTheme]);
 
   const { scenes, saveScene, deleteScene } = useSceneManager();
   const { resources, addResource, deleteResource } = useResourceManager();
@@ -132,6 +156,66 @@ export default function App() {
     });
   }, []);
 
+  const activeIndex = useMemo(() => {
+    if (!activeScene) return -1;
+    return scenes.findIndex((s) => s.id === activeScene.id);
+  }, [scenes, activeScene]);
+
+  const handlePrev = useCallback(() => {
+    if (scenes.length === 0 || activeIndex < 0) return;
+    const prevIndex = activeIndex <= 0 ? scenes.length - 1 : activeIndex - 1;
+    handleSceneLoad(scenes[prevIndex]);
+  }, [scenes, activeIndex, handleSceneLoad]);
+
+  const handleNext = useCallback(() => {
+    if (scenes.length === 0 || activeIndex < 0) return;
+    const nextIndex = activeIndex >= scenes.length - 1 ? 0 : activeIndex + 1;
+    handleSceneLoad(scenes[nextIndex]);
+  }, [scenes, activeIndex, handleSceneLoad]);
+
+  useEffect(() => {
+    if (!zenMode) return;
+    const handler = (e) => {
+      if (e.key === 'ArrowLeft') handlePrev();
+      else if (e.key === 'ArrowRight') handleNext();
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [zenMode, handlePrev, handleNext]);
+
+  useEffect(() => {
+    if (window.electronAPI?.setAlwaysOnTop) {
+      window.electronAPI.setAlwaysOnTop(zenMode);
+    }
+  }, [zenMode]);
+
+  useEffect(() => {
+    if (window.electronAPI?.onMaximizedChange) {
+      window.electronAPI.onMaximizedChange(setMaximized);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('cocoon_zenBg', zenBgMode);
+  }, [zenBgMode]);
+
+  useEffect(() => {
+    if (zenMode) {
+      window.electronAPI?.saveWindowSize();
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`.${styles.playerCard}`);
+        if (el && window.electronAPI?.resizeTo) {
+          window.electronAPI.resizeTo(
+            el.offsetWidth + 16,
+            el.offsetHeight + 16
+          );
+        }
+      });
+    } else {
+      window.electronAPI?.restoreWindowSize();
+    }
+  }, [zenMode]);
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'configure':
@@ -143,6 +227,8 @@ export default function App() {
             onLoad={handleSceneLoad}
             currentConfig={config}
             resources={resources}
+            editingScene={editingScene}
+            onEditDone={() => setEditingScene(null)}
           />
         );
       case 'cocoons':
@@ -151,6 +237,7 @@ export default function App() {
             scenes={scenes}
             onLoad={handleSceneLoad}
             onDelete={deleteScene}
+            onEdit={(scene) => { setEditingScene(scene); setActiveTab('configure'); }}
           />
         );
       case 'voice':
@@ -178,15 +265,24 @@ export default function App() {
   };
 
   return (
-    <div className={`${styles.app} ${zenMode ? styles.zen : ''}`} onClick={handleFirstClick}>
-      {zenMode && (
-        <button className={styles.zenToggle} onClick={() => setZenMode(false)}>
-          🎋 Settings
-        </button>
+    <div className={`${styles.app} ${zenMode ? `${styles.zen} ${zenBgMode === 'transparent' ? styles.zenBgTransparent : ''}` : ''}`} onClick={handleFirstClick}>
+      {!zenMode && (
+        <div className={styles.titleBar}>
+          <span className={styles.titleBarLabel}>Digital Cocoon</span>
+          <div className={styles.titleBarButtons}>
+            <button className={styles.titleBarBtn} onClick={() => window.electronAPI?.minimize()} title="Minimize">—</button>
+            <button className={styles.titleBarBtn} onClick={() => window.electronAPI?.maximize()} title={maximized ? 'Restore' : 'Maximize'}>{maximized ? '❐' : '□'}</button>
+            <button className={`${styles.titleBarBtn} ${styles.titleBarBtnClose}`} onClick={() => window.electronAPI?.close()} title="Close">✕</button>
+          </div>
+        </div>
       )}
-
       <div className={styles.playerColumn}>
         <div className={styles.playerCard}>
+          {zenMode && (
+            <button className={styles.zenExit} onClick={() => setZenMode(false)} title="Exit zen mode">
+              ←
+            </button>
+          )}
           <h1>Digital Cocoon</h1>
           {activeScene && <div className={styles.sceneTitle}>{activeScene.name}</div>}
           <div className={styles.playerMediaWrap}>
@@ -200,7 +296,13 @@ export default function App() {
           </div>
 
           <div className={styles.masterRow}>
-            <span className={styles.masterLabel}>Master Volume</span>
+            <div className={styles.masterControls}>
+              <button className={styles.controlBtn} onClick={handlePrev} title="Previous cocoon" disabled={scenes.length < 2}>⏮</button>
+              <button className={styles.controlBtn} onClick={handleToggleAll} title="Pause / Play all">
+                {playing.visual && playing.melodic && playing.atmospheric ? '⏸' : '▶️'}
+              </button>
+              <button className={styles.controlBtn} onClick={handleNext} title="Next cocoon" disabled={scenes.length < 2}>⏭</button>
+            </div>
             <span className={styles.masterPct}>{masterVolume}%</span>
             <input
               className={styles.masterSlider}
@@ -210,12 +312,10 @@ export default function App() {
               value={masterVolume}
               onChange={(e) => setMasterVolume(Number(e.target.value))}
             />
-            <button className={styles.masterToggle} onClick={handleToggleAll} title="Pause / Play all">
-              {playing.visual && playing.melodic && playing.atmospheric ? '⏸' : '▶️'}
-            </button>
           </div>
         </div>
       </div>
+      {!zenMode && <button className={styles.zenBtn} onClick={() => setZenMode(true)}>◻ Zen Mode</button>}
 
       {!zenMode && (
         <div className={styles.sideColumn}>
@@ -226,50 +326,40 @@ export default function App() {
           >
             {renderTabContent()}
           </TabPanel>
-          <button
-            style={{
-              background: 'none', border: 'none', fontSize: '0.75rem',
-              opacity: 0.4, cursor: 'pointer', padding: '0.3rem', textAlign: 'center',
-              color: 'var(--text-color)',
-            }}
-            onClick={() => setZenMode(true)}
-          >
-            🎋 Enter Zen Mode
-          </button>
         </div>
-      )}
-
-      {zenMode && (
-        <button className={styles.zenHint} onClick={() => setZenMode(false)}>
-          🎋 Show Settings
-        </button>
       )}
 
       {backendStatus === 'down' && (
         <div className={styles.backendBanner}>
-          ⚠️ Backend not running — YouTube audio unavailable. Use &quot;offline&quot; resources from the Resources tab.
+          ⚠️ YouTube audio unavailable (yt-dlp not found). Use &quot;offline&quot; resources from the Resources tab.
         </div>
       )}
       <MelodicLayer url={config.melodic.url} volume={config.melodic.volume * masterVolume / 10000} type={config.melodic.type} playing={playing.melodic} onBackendStatus={setBackendStatus} />
       <AtmosphericLayer url={config.atmospheric.url} volume={config.atmospheric.volume * masterVolume / 10000} type={config.atmospheric.type} playing={playing.atmospheric} onBackendStatus={setBackendStatus} />
 
-      <button className={styles.themeFloater} onClick={() => setShowTheme((v) => !v)} title="Theme">
-        🎨
-      </button>
+      {!zenMode && (
+        <button className={styles.themeFloater} onClick={() => setShowTheme((v) => !v)} title="Theme">
+          🎨
+        </button>
+      )}
       {showTheme && (
-        <ThemeSwitcher
-          theme={theme}
-          bgType={bgType}
-          bgValue={bgValue}
-          showVinyl={showVinyl}
-          showMusicName={showMusicName}
-          onThemeChange={setTheme}
-          onBgTypeChange={setBgType}
-          onBgValueChange={setBgValue}
-          onVinylToggle={setShowVinyl}
-          onMusicNameToggle={setShowMusicName}
-          onClose={() => setShowTheme(false)}
-        />
+        <div ref={themeRef}>
+            <ThemeSwitcher
+              theme={theme}
+              bgType={bgType}
+              bgValue={bgValue}
+              showVinyl={showVinyl}
+              showMusicName={showMusicName}
+              onThemeChange={setTheme}
+              onBgTypeChange={setBgType}
+              onBgValueChange={setBgValue}
+              onVinylToggle={setShowVinyl}
+              onMusicNameToggle={setShowMusicName}
+              onClose={() => setShowTheme(false)}
+              zenBgMode={zenBgMode}
+              onZenBgChange={setZenBgMode}
+            />
+        </div>
       )}
     </div>
   );

@@ -17,61 +17,34 @@ async function ensureHls() {
 
 export function useAudioLayer() {
   const elRef = useRef(null);
-  const sourceRef = useRef(null);
-  const gainRef = useRef(null);
   const hlsRef = useRef(null);
-  const initDone = useRef(false);
   const pendingRef = useRef(null);
 
   const ensureSource = useCallback(() => {
-    if (sourceRef.current) return;
-    const ctx = getAudioContext();
+    if (elRef.current) return;
     const el = document.createElement('audio');
-    el.crossOrigin = 'anonymous';
     elRef.current = el;
-
-    const gain = ctx.createGain();
-    gain.gain.value = 0.5;
-    gain.connect(ctx.destination);
-    gainRef.current = gain;
-  }, []);
-
-  const connectMediaElement = useCallback(() => {
-    if (sourceRef.current) return;
-    const ctx = getAudioContext();
-    const el = elRef.current;
-    if (!el) return;
-    try {
-      const source = ctx.createMediaElementSource(el);
-      source.connect(gainRef.current);
-      sourceRef.current = source;
-    } catch {
-      // already connected
-    }
   }, []);
 
   const tryPlay = useCallback((el) => {
     if (!el) return;
-    el.play().catch(() => {
+    el.play().catch((err) => {
+      console.warn('[useAudioLayer] play() rejected:', err.message, 'readyState:', el.readyState, 'networkState:', el.networkState);
       const ctx = getAudioContext();
       if (ctx.state === 'suspended') {
-        ctx.resume().then(() => el.play()).catch(() => {});
+        ctx.resume().then(() => el.play()).catch((e2) => {
+          console.warn('[useAudioLayer] retry after resume failed:', e2.message);
+        });
       }
     });
   }, []);
 
   const load = useCallback(async (url, volume) => {
     ensureSource();
-    if (!initDone.current) {
-      connectMediaElement();
-      initDone.current = true;
-    }
-
     if (hlsRef.current) {
       hlsRef.current.destroy();
       hlsRef.current = null;
     }
-
     const el = elRef.current;
     if (!el) return;
     pendingRef.current = null;
@@ -91,7 +64,7 @@ export function useAudioLayer() {
         hls.loadSource(url);
         hls.attachMedia(el);
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (gainRef.current) gainRef.current.gain.value = volume;
+          el.volume = volume;
           tryPlay(el);
         });
         return;
@@ -100,14 +73,22 @@ export function useAudioLayer() {
 
     el.loop = true;
     el.src = url;
-    el.volume = 1;
-    if (gainRef.current) gainRef.current.gain.value = volume;
+    el.volume = volume;
     pendingRef.current = { el, url, volume };
+    el.addEventListener('error', () => {
+      console.warn('[useAudioLayer] media error:', el.error ? `code=${el.error.code} message=${el.error.message}` : 'unknown');
+    }, { once: true });
+    el.addEventListener('canplay', () => {
+      console.log('[useAudioLayer] media canplay');
+    }, { once: true });
+    el.addEventListener('loadstart', () => {
+      console.log('[useAudioLayer] loadstart', url.slice(0, 60));
+    }, { once: true });
     tryPlay(el);
-  }, [ensureSource, connectMediaElement, tryPlay]);
+  }, [ensureSource, tryPlay]);
 
   const setVolume = useCallback((vol) => {
-    if (gainRef.current) gainRef.current.gain.value = vol;
+    if (elRef.current) elRef.current.volume = vol;
   }, []);
 
   const pause = useCallback(() => {
@@ -139,9 +120,6 @@ export function useAudioLayer() {
         elRef.current.src = '';
       }
       elRef.current = null;
-      sourceRef.current = null;
-      gainRef.current = null;
-      initDone.current = false;
       pendingRef.current = null;
     };
   }, []);

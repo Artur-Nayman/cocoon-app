@@ -19,7 +19,7 @@ const ANIMATIONS = [
   { key: 'particles', label: 'Floating Particles' },
 ];
 
-export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showMusicName, onThemeChange, onBgTypeChange, onBgValueChange, onVinylToggle, onMusicNameToggle, onClose }) {
+export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showMusicName, onThemeChange, onBgTypeChange, onBgValueChange, onVinylToggle, onMusicNameToggle, onClose, zenBgMode, onZenBgChange }) {
   const [customTab, setCustomTab] = useState('color');
 
   return (
@@ -131,6 +131,24 @@ export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showM
             {showMusicName ? '🎬 Show Video Name' : '🎵 Show Music Name'}
           </button>
         )}
+      </div>
+
+      <div className={styles.themeSection}>
+        <span className={styles.themeSectionLabel}>Zen Background</span>
+        <div className={styles.themePills}>
+          <button
+            className={`${styles.themePill} ${zenBgMode === 'dark' ? styles.themePillActive : ''}`}
+            onClick={() => onZenBgChange('dark')}
+          >
+            Dark
+          </button>
+          <button
+            className={`${styles.themePill} ${zenBgMode === 'transparent' ? styles.themePillActive : ''}`}
+            onClick={() => onZenBgChange('transparent')}
+          >
+            Transparent
+          </button>
+        </div>
       </div>
     </div>
   );

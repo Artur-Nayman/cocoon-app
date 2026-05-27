@@ -1,15 +1,40 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { extractYtId } from '../utils/youtube';
 import styles from '../styles/SceneManager.module.css';
 
-export default function SceneManager({ onSave, currentConfig, resources }) {
+export default function SceneManager({ onSave, currentConfig, resources, editingScene, onEditDone }) {
   const [name, setName] = useState('');
   const [ytId, setYtId] = useState('');
   const [melodicUrl, setMelodicUrl] = useState('');
   const [atmosUrl, setAtmosUrl] = useState('');
 
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [dropdownUp, setDropdownUp] = useState(false);
   const dropdownRef = useRef(null);
+  const btnRefs = useRef({});
+
+  const toggleDropdown = useCallback((field) => {
+    if (openDropdown === field) {
+      setOpenDropdown(null);
+      return;
+    }
+    setOpenDropdown(field);
+    const btn = btnRefs.current[field];
+    if (btn) {
+      const rect = btn.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setDropdownUp(spaceBelow < 220);
+    }
+  }, [openDropdown]);
+
+  useEffect(() => {
+    if (editingScene) {
+      setName(editingScene.name);
+      setYtId(editingScene.visual.videoId);
+      setMelodicUrl(editingScene.melodic.url || '');
+      setAtmosUrl(editingScene.atmospheric.url || '');
+    }
+  }, [editingScene]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -25,6 +50,7 @@ export default function SceneManager({ onSave, currentConfig, resources }) {
     const videoId = extractYtId(ytId);
     if (!name || !videoId) return;
     onSave({
+      ...(editingScene ? { id: editingScene.id } : {}),
       name,
       visual: { videoId, volume: currentConfig.visual.volume },
       melodic: { url: melodicUrl, type: melodicUrl.includes('youtu') ? 'youtube' : 'direct', volume: currentConfig.melodic.volume },
@@ -34,6 +60,7 @@ export default function SceneManager({ onSave, currentConfig, resources }) {
     setYtId('');
     setMelodicUrl('');
     setAtmosUrl('');
+    if (onEditDone) onEditDone();
   };
 
   const pickResource = (field, resource) => {
@@ -57,14 +84,15 @@ export default function SceneManager({ onSave, currentConfig, resources }) {
   const renderDropdown = (field) => (
     <div className={styles.dropdownWrapper}>
       <button
+        ref={(el) => { btnRefs.current[field] = el; }}
         className={styles.resourceBtn}
-        onClick={() => setOpenDropdown(openDropdown === field ? null : field)}
+        onClick={() => toggleDropdown(field)}
         title="Pick from saved resources"
       >
         📂
       </button>
       {openDropdown === field && (
-        <div className={styles.dropdown} ref={dropdownRef}>
+        <div className={`${styles.dropdown} ${dropdownUp ? styles.dropdownUp : ''}`} ref={dropdownRef}>
           {filteredByCategory(field).length === 0 ? (
             <span className={styles.dropdownEmpty}>No matching resources</span>
           ) : (
@@ -116,7 +144,7 @@ export default function SceneManager({ onSave, currentConfig, resources }) {
   );
 }
 
-export function CocoonsTab({ scenes, onLoad, onDelete }) {
+export function CocoonsTab({ scenes, onLoad, onDelete, onEdit }) {
   const [search, setSearch] = useState('');
 
   const filtered = scenes.filter((s) =>
@@ -139,12 +167,10 @@ export function CocoonsTab({ scenes, onLoad, onDelete }) {
             <div key={s.id} className={styles.listItem} onClick={() => onLoad(s)}>
               <div className={styles.listItemTop}>
                 <span className={styles.listItemName}>{s.name}</span>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={(e) => { e.stopPropagation(); onDelete(s.id); }}
-                >
-                  &times;
-                </button>
+                <div className={styles.listActions}>
+                  <button className={styles.editBtn} onClick={(e) => { e.stopPropagation(); onEdit(s); }} title="Edit">✏️</button>
+                  <button className={styles.deleteBtn} onClick={(e) => { e.stopPropagation(); onDelete(s.id); }}>&times;</button>
+                </div>
               </div>
               <div className={styles.listItemMeta}>
                 <span>🎬 {s.visual.videoId}</span>

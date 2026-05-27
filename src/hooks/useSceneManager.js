@@ -11,7 +11,15 @@ export function useSceneManager() {
   const [scenes, setScenes] = useLocalStorage(DEFAULT_SCENES_KEY, [], seedScenes);
 
   const saveScene = (scene) => {
-    setScenes((prev) => [...prev, { ...scene, id: Date.now().toString() }]);
+    setScenes((prev) => {
+      const idx = prev.findIndex((s) => s.id === scene.id);
+      if (idx >= 0) {
+        const updated = [...prev];
+        updated[idx] = scene;
+        return updated;
+      }
+      return [...prev, { ...scene, id: Date.now().toString() }];
+    });
   };
 
   const deleteScene = (id) => {

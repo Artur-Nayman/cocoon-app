@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useAudioLayer } from '../hooks/useAudioLayer';
+import { BACKEND_URL } from '../config';
 
 export default function MelodicLayer({ url, volume, type, playing, onBackendStatus }) {
   const { load, setVolume, pause, resume } = useAudioLayer();
@@ -19,7 +20,7 @@ export default function MelodicLayer({ url, volume, type, playing, onBackendStat
       loadedKey.current = key;
       prevVol.current = volume;
 
-      fetch(`/api/audio/extract?url=${encodeURIComponent(url)}`)
+      fetch(`${BACKEND_URL}/api/audio/extract?url=${encodeURIComponent(url)}`)
         .then((r) => r.json())
         .then((data) => {
           if (data.success && data.audioUrl) {
@@ -30,7 +31,7 @@ export default function MelodicLayer({ url, volume, type, playing, onBackendStat
           }
         })
         .catch(() => {
-          console.warn('MelodicLayer: backend unavailable — start the server with `cd server && npm start`');
+          console.warn('MelodicLayer: backend unavailable');
           if (onBackendStatus) onBackendStatus('down');
         });
     } else {

@@ -7,17 +7,18 @@
   box-shadow: var(--shadow);
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   overflow: hidden;
 }
 
 .bar {
   display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 0.5rem 0.5rem 0 0.5rem;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  flex-direction: column;
+  min-width: 120px;
+  padding: 0.5rem 0;
+  border-right: 1px solid var(--glass-border);
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .tab {
@@ -31,9 +32,10 @@
   color: var(--text-color);
   opacity: 0.5;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
+  border-left: 2px solid transparent;
   transition: all var(--transition);
   white-space: nowrap;
+  text-align: left;
 }
 
 .tab:hover {
@@ -42,12 +44,14 @@
 
 .tab.active {
   opacity: 1;
-  border-bottom-color: var(--accent-color);
+  border-left-color: var(--accent-color);
   color: var(--accent-color);
 }
 
 .content {
+  flex: 1;
   padding: 1rem 1.2rem 1.2rem;
   overflow-y: auto;
   max-height: 70vh;
+  min-width: 0;
 }
