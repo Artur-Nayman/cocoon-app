@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import { getAudioContext } from '../utils/audioContext';
 import { fadeVolume } from '../utils/fadeAudio';
 
@@ -19,14 +19,25 @@ async function ensureHls() {
 export function useAudioLayer() {
   const elRef = useRef(null);
   const hlsRef = useRef(null);
-  const pendingRef = useRef(null);
   const volumeRef = useRef(0.5);
+  const readyRef = useRef(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const setupListeners = useCallback((el) => {
+    const onTime = () => setCurrentTime(el.currentTime || 0);
+    const onMeta = () => setDuration(el.duration || 0);
+    el.addEventListener('timeupdate', onTime);
+    el.addEventListener('loadedmetadata', onMeta);
+    el.addEventListener('durationchange', onMeta);
+  }, []);
 
   const ensureSource = useCallback(() => {
     if (elRef.current) return;
     const el = document.createElement('audio');
     elRef.current = el;
-  }, []);
+    setupListeners(el);
+  }, [setupListeners]);
 
   const tryPlay = useCallback((el) => {
     if (!el) return;
@@ -49,7 +60,7 @@ export function useAudioLayer() {
     }
     const el = elRef.current;
     if (!el) return;
-    pendingRef.current = null;
+    readyRef.current = false;
     volumeRef.current = volume;
 
     if (fadeMs > 0 && !el.paused) {
@@ -59,6 +70,8 @@ export function useAudioLayer() {
     el.pause();
     el.src = '';
     el.loop = false;
+    setCurrentTime(0);
+    setDuration(0);
 
     const isHls = url.includes('.m3u8') || url.includes('m3u8');
 
@@ -73,11 +86,10 @@ export function useAudioLayer() {
         hls.on(Hls.Events.MANIFEST_PARSED, () => {
           el.volume = 0;
           tryPlay(el);
-          if (fadeMs > 0) {
-            fadeVolume(el, 0, volume, fadeMs);
-          } else {
-            el.volume = volume;
-          }
+          setTimeout(() => {
+            setDuration(el.duration || 0);
+            readyRef.current = true;
+          }, 100);
         });
         return;
       }
@@ -87,28 +99,16 @@ export function useAudioLayer() {
     el.volume = 0;
     el.src = url;
 
-    pendingRef.current = { el, url, volume };
-
     el.addEventListener('error', () => {
       console.warn('[useAudioLayer] media error:', el.error ? `code=${el.error.code} message=${el.error.message}` : 'unknown');
     }, { once: true });
 
-    const playIt = () => {
-      el.volume = 0;
-      tryPlay(el);
-      if (fadeMs > 0) {
-        fadeVolume(el, 0, volumeRef.current, fadeMs);
-      } else {
-        el.volume = volumeRef.current;
-      }
-    };
+    const markReady = () => { readyRef.current = true; };
+    el.addEventListener('canplay', markReady, { once: true });
+    el.addEventListener('loadedmetadata', () => setDuration(el.duration || 0), { once: true });
+    el.load();
 
-    if (el.readyState >= 2) {
-      playIt();
-    } else {
-      el.addEventListener('canplay', playIt, { once: true });
-      el.load();
-    }
+    setDuration(el.duration || 0);
   }, [ensureSource, tryPlay]);
 
   const setVolume = useCallback((vol) => {
@@ -119,13 +119,11 @@ export function useAudioLayer() {
   const seek = useCallback((time) => {
     if (elRef.current) {
       elRef.current.currentTime = time;
+      setCurrentTime(time);
     }
   }, []);
 
-  const getElement = useCallback(() => elRef.current, []);
-
   const fadeOutAndPause = useCallback(async (fadeMs = 0) => {
-    pendingRef.current = null;
     const el = elRef.current;
     if (!el) return;
     if (fadeMs > 0 && !el.paused) {
@@ -136,7 +134,7 @@ export function useAudioLayer() {
 
   const fadeInResume = useCallback(async (fadeMs = 0) => {
     const el = elRef.current;
-    if (!el) return;
+    if (!el || !readyRef.current) return;
     if (fadeMs > 0) {
       el.volume = 0;
       tryPlay(el);
@@ -148,27 +146,14 @@ export function useAudioLayer() {
   }, [tryPlay]);
 
   const pause = useCallback(() => {
-    pendingRef.current = null;
     if (elRef.current) elRef.current.pause();
   }, []);
 
   const resume = useCallback(() => {
-    if (elRef.current) {
-      elRef.current.volume = volumeRef.current;
-      tryPlay(elRef.current);
-    }
-  }, [tryPlay]);
-
-  useEffect(() => {
-    const handler = () => {
-      const ctx = getAudioContext();
-      if (ctx.state === 'suspended') return;
-      if (pendingRef.current && elRef.current && elRef.current.paused) {
-        tryPlay(elRef.current);
-      }
-    };
-    document.addEventListener('click', handler, { once: false });
-    return () => document.removeEventListener('click', handler);
+    const el = elRef.current;
+    if (!el || !readyRef.current) return;
+    el.volume = volumeRef.current;
+    tryPlay(el);
   }, [tryPlay]);
 
   useEffect(() => {
@@ -179,9 +164,8 @@ export function useAudioLayer() {
         elRef.current.src = '';
       }
       elRef.current = null;
-      pendingRef.current = null;
     };
   }, []);
 
-  return { load, setVolume, pause, resume, seek, getElement, fadeOutAndPause, fadeInResume };
+  return { load, setVolume, pause, resume, seek, currentTime, duration, fadeOutAndPause, fadeInResume };
 }

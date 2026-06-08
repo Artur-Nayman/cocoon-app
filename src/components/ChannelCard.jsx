@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useAudioLayer } from '../hooks/useAudioLayer';
 import { BACKEND_URL } from '../config';
 import { CHANNEL_COLORS } from '../constants/defaults';
@@ -21,11 +21,9 @@ function formatTime(s) {
 }
 
 export default function ChannelCard({ channel, masterVolume, onToggle, onVolume, onRemove, onBackendStatus }) {
-  const { load, setVolume, fadeOutAndPause, fadeInResume, seek, getElement } = useAudioLayer();
+  const { load, setVolume, fadeOutAndPause, fadeInResume, seek, currentTime, duration } = useAudioLayer();
   const loadedKey = useRef(null);
   const prevVol = useRef(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const seekingRef = useRef(false);
 
   const { id, url, volume, type, name, category, playing } = channel;
@@ -43,8 +41,6 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
 
     const doLoad = (audioUrl) => {
       load(audioUrl, vol, 500);
-      setCurrentTime(0);
-      setDuration(0);
     };
 
     if (type === 'youtube') {
@@ -72,25 +68,9 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
     else if (playing === true) fadeInResume(500);
   }, [playing, fadeOutAndPause, fadeInResume]);
 
-  useEffect(() => {
-    const el = getElement();
-    if (!el) return;
-    const onTime = () => {
-      if (!seekingRef.current) setCurrentTime(el.currentTime || 0);
-    };
-    const onMeta = () => setDuration(el.duration || 0);
-    el.addEventListener('timeupdate', onTime);
-    el.addEventListener('loadedmetadata', onMeta);
-    return () => {
-      el.removeEventListener('timeupdate', onTime);
-      el.removeEventListener('loadedmetadata', onMeta);
-    };
-  }, [getElement]);
-
   const handleSeek = useCallback((e) => {
     const t = Number(e.target.value);
     seekingRef.current = true;
-    setCurrentTime(t);
     seek(t);
     requestAnimationFrame(() => { seekingRef.current = false; });
   }, [seek]);
@@ -98,13 +78,14 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
   const handleRandom = useCallback(() => {
     if (duration > 0) {
       const t = Math.random() * duration;
-      setCurrentTime(t);
       seek(t);
     }
   }, [duration, seek]);
 
   const color = CHANNEL_COLORS[category] || CHANNEL_COLORS.custom;
   const isActive = playing !== false;
+  const showSeek = duration > 0;
+
   return (
     <div className={`${styles.card} ${isActive ? styles.active : ''}`} style={{ '--channel-color': color }}>
       <button className={styles.toggleBtn} onClick={() => onToggle(id)} style={{ background: isActive ? color : 'transparent' }}>
@@ -113,7 +94,7 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
       <div className={styles.info}>
         <span className={styles.name}>{name}</span>
         <input className={styles.slider} type="range" min="0" max="100" value={volume ?? 50} onChange={(e) => onVolume(id, Number(e.target.value))} />
-        {duration > 0 && (
+        {showSeek && (
           <div className={styles.seekRow}>
             <span className={styles.seekTime}>{formatTime(currentTime)}</span>
             <input className={styles.seekSlider} type="range" min="0" max={duration || 0} step="0.1" value={currentTime} onChange={handleSeek} />
