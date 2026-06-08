@@ -147,6 +147,11 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
+    const isWidget = zenMode && zenBgMode === 'transparent';
+    document.documentElement.classList.toggle('zen-widget', isWidget);
+  }, [zenMode, zenBgMode]);
+
+  useEffect(() => {
     const body = document.body;
     body.className = '';
     if (bgType === 'color') {
@@ -219,19 +224,28 @@ export default function App() {
     localStorage.setItem('cocoon_zenBg', zenBgMode);
   }, [zenBgMode]);
 
+  const resizeToCard = useCallback(() => {
+    requestAnimationFrame(() => {
+      const el = document.querySelector(`.${styles.playerCard}`);
+      if (el && window.electronAPI?.resizeTo) {
+        const pad = zenBgMode === 'transparent' ? 24 : 16;
+        window.electronAPI.resizeTo(el.offsetWidth + pad, el.offsetHeight + pad);
+      }
+    });
+  }, [zenBgMode]);
+
   useEffect(() => {
     if (zenMode) {
       window.electronAPI?.saveWindowSize();
-      requestAnimationFrame(() => {
-        const el = document.querySelector(`.${styles.playerCard}`);
-        if (el && window.electronAPI?.resizeTo) {
-          window.electronAPI.resizeTo(el.offsetWidth + 16, el.offsetHeight + 16);
-        }
-      });
+      resizeToCard();
     } else {
       window.electronAPI?.restoreWindowSize();
     }
-  }, [zenMode]);
+  }, [zenMode, resizeToCard]);
+
+  useEffect(() => {
+    if (zenMode) resizeToCard();
+  }, [zenMode, zenBgMode, resizeToCard]);
 
   const shortcuts = useMemo(() => ({
     onToggleAll: handleToggleAll,

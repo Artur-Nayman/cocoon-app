@@ -376,6 +376,18 @@ h2 {
   background: rgba(0,0,0,0.15);
 }
 
+html.zen-widget {
+  background: transparent !important;
+  overflow: hidden;
+  border-radius: 48px;
+}
+
+html.zen-widget body {
+  background: transparent !important;
+  overflow: hidden;
+  border-radius: 48px;
+}
+
 .vinylHole {
   position: absolute;
   top: 50%;
