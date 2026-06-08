@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Digital Cocoon
+Comment=Layered audio/video ambient mixer
+Exec=/opt/digital-cocoon/Digital_Cocoon-x86_64.AppImage
+Icon=digital-cocoon
+Type=Application
+Categories=AudioVideo;Audio;Player;
+Terminal=false
+StartupNotify=true

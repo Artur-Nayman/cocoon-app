@@ -34,7 +34,7 @@
         "AppImage"
       ],
       "category": "AudioVideo",
-      "icon": "public/favicon.ico"
+      "icon": "build/icons"
     },
     "win": {
       "target": [
