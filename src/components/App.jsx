@@ -8,7 +8,7 @@ import SoundBrowser from './SoundBrowser';
 import ChannelGrid from './ChannelGrid';
 import MixerPanel from './MixerPanel';
 import SleepTimer from './SleepTimer';
-import AudioChannel from './AudioChannel';
+
 import { useSceneManager } from '../hooks/useSceneManager';
 import { useResourceManager } from '../hooks/useResourceManager';
 import { useSleepTimer } from '../hooks/useSleepTimer';
@@ -35,7 +35,7 @@ export default function App() {
   const [visual, setVisual] = useState(initialVisual);
   const [channels, setChannels] = useState([]);
   const [masterVolume, setMasterVolume] = useState(100);
-  const [visualPlaying, setVisualPlaying] = useState(true);
+  const [visualPlaying, setVisualPlaying] = useState(false);
   const [activeScene, setActiveScene] = useState(null);
   const [interacted, setInteracted] = useState(false);
   const [zenMode, setZenMode] = useState(false);
@@ -70,18 +70,16 @@ export default function App() {
   const handleSceneLoad = useCallback((scene) => {
     setActiveScene(scene);
     setVisual({ videoId: scene.visual.videoId, volume: scene.visual.volume });
-    setVisualPlaying(true);
+    setVisualPlaying(false);
     setChannels((scene.channels || []).map((ch) => ({
       ...ch,
       id: genChannelId(),
-      playing: true,
+      playing: false,
     })));
-    resumeAudioContext();
   }, []);
 
   const handleAddChannel = useCallback((ch) => {
-    setChannels((prev) => [...prev, { ...ch, id: genChannelId(), playing: true }]);
-    resumeAudioContext();
+    setChannels((prev) => [...prev, { ...ch, id: genChannelId(), playing: false }]);
   }, []);
 
   const handleRemoveChannel = useCallback((id) => {
@@ -108,7 +106,6 @@ export default function App() {
     const id = extractYtId(url);
     if (id) {
       setVisual((prev) => ({ ...prev, videoId: id }));
-      setVisualPlaying(true);
     }
   }, []);
 
@@ -293,9 +290,11 @@ export default function App() {
           <div>
             <ChannelGrid
               channels={channels}
+              masterVolume={masterVolume}
               onToggle={handleToggleChannel}
               onVolume={handleChannelVolume}
               onRemove={handleRemoveChannel}
+              onBackendStatus={setBackendStatus}
             />
             <MixerPanel
               channels={channels}
@@ -401,9 +400,11 @@ export default function App() {
 
           <ChannelGrid
             channels={channels}
+            masterVolume={masterVolume}
             onToggle={handleToggleChannel}
             onVolume={handleChannelVolume}
             onRemove={handleRemoveChannel}
+            onBackendStatus={setBackendStatus}
           />
 
           <div className={styles.masterRow}>
@@ -445,16 +446,6 @@ export default function App() {
         </div>
       )}
 
-      {channels.map((ch) => (
-        <AudioChannel
-          key={ch.id}
-          url={ch.url}
-          volume={ch.volume != null ? ch.volume * masterVolume / 10000 : 0}
-          type={ch.type || 'direct'}
-          playing={ch.playing !== false}
-          onBackendStatus={setBackendStatus}
-        />
-      ))}
 
       {!zenMode && (
         <button className={styles.themeFloater} onClick={() => setShowTheme((v) => !v)} title="Theme">🎨</button>

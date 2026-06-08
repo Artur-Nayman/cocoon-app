@@ -116,6 +116,14 @@ export function useAudioLayer() {
     if (elRef.current) elRef.current.volume = vol;
   }, []);
 
+  const seek = useCallback((time) => {
+    if (elRef.current) {
+      elRef.current.currentTime = time;
+    }
+  }, []);
+
+  const getElement = useCallback(() => elRef.current, []);
+
   const fadeOutAndPause = useCallback(async (fadeMs = 0) => {
     pendingRef.current = null;
     const el = elRef.current;
@@ -175,5 +183,5 @@ export function useAudioLayer() {
     };
   }, []);
 
-  return { load, setVolume, pause, resume, fadeOutAndPause, fadeInResume };
+  return { load, setVolume, pause, resume, seek, getElement, fadeOutAndPause, fadeInResume };
 }

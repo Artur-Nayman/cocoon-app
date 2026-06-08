@@ -75,15 +75,14 @@
   width: auto;
   max-width: none;
   margin: 0;
+  padding: 0;
   position: fixed;
   top: 0;
   left: 0;
   height: auto;
-  padding: 0.25rem;
   box-sizing: border-box;
   -webkit-app-region: drag;
-  background: transparent;
-  border-radius: 48px;
+  background: transparent !important;
 }
 
 .app.zen button,
@@ -98,6 +97,11 @@
   padding: 1rem;
   gap: 0.6rem;
   border-radius: 40px;
+  background: var(--bg-color);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  border: 1px solid var(--glass-border);
 }
 
 .app.zen.zenBgTransparent .playerCard {

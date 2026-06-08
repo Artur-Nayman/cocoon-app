@@ -379,13 +379,11 @@ h2 {
 html.zen-widget {
   background: transparent !important;
   overflow: hidden;
-  border-radius: 48px;
 }
 
 html.zen-widget body {
   background: transparent !important;
   overflow: hidden;
-  border-radius: 48px;
 }
 
 .vinylHole {
