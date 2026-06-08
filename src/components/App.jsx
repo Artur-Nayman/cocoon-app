@@ -147,9 +147,8 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    const isWidget = zenMode && zenBgMode === 'transparent';
-    document.documentElement.classList.toggle('zen-widget', isWidget);
-  }, [zenMode, zenBgMode]);
+    document.documentElement.classList.toggle('zen-widget', zenMode);
+  }, [zenMode]);
 
   useEffect(() => {
     const body = document.body;
@@ -228,11 +227,10 @@ export default function App() {
     requestAnimationFrame(() => {
       const el = document.querySelector(`.${styles.playerCard}`);
       if (el && window.electronAPI?.resizeTo) {
-        const pad = zenBgMode === 'transparent' ? 24 : 16;
-        window.electronAPI.resizeTo(el.offsetWidth + pad, el.offsetHeight + pad);
+        window.electronAPI.resizeTo(el.offsetWidth + 24, el.offsetHeight + 24);
       }
     });
-  }, [zenBgMode]);
+  }, []);
 
   useEffect(() => {
     if (zenMode) {

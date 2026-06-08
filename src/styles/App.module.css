@@ -72,18 +72,18 @@
 
 .app.zen {
   grid-template-columns: 1fr;
-  width: 100vw;
-  max-width: 100vw;
+  width: auto;
+  max-width: none;
   margin: 0;
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
-  overflow-y: auto;
-  padding: 0.5rem;
+  height: auto;
+  padding: 0.25rem;
   box-sizing: border-box;
   -webkit-app-region: drag;
-  background: rgba(0, 0, 0, 0.85);
+  background: transparent;
+  border-radius: 48px;
 }
 
 .app.zen button,
@@ -91,10 +91,13 @@
   -webkit-app-region: no-drag;
 }
 
-.app.zen.zenBgTransparent {
-  background: transparent;
-  padding: 0.25rem;
-  border-radius: 48px;
+.app.zen .playerCard {
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  padding: 1rem;
+  gap: 0.6rem;
+  border-radius: 40px;
 }
 
 .app.zen.zenBgTransparent .playerCard {
@@ -119,29 +122,6 @@
 
 .app.zen.zenBgTransparent .visualVolRow {
   display: none;
-}
-
-.app.zen.zenBgTransparent .app {
-  margin: 0;
-  width: auto;
-  height: auto;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
-.app.zen .playerColumn {
-  max-width: none;
-  margin: 0;
-}
-
-.app.zen .playerCard {
-  max-width: 480px;
-  margin: 0 auto;
-  position: relative;
-  padding: 1rem;
-  gap: 0.6rem;
-  border-radius: 40px;
 }
 
 .playerColumn {
