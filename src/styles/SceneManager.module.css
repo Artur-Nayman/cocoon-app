@@ -126,6 +126,74 @@
   flex-shrink: 0;
 }
 
+.channelList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+
+.channelRow {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  background: var(--hover-bg);
+  font-size: 0.7rem;
+}
+
+.channelName {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 4rem;
+}
+
+.channelUrl {
+  opacity: 0.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  font-size: 0.6rem;
+}
+
+.chRemove {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  opacity: 0.3;
+  color: var(--text-color);
+  padding: 0.1rem;
+  flex-shrink: 0;
+}
+
+.chRemove:hover {
+  opacity: 0.8;
+}
+
+.addBtn {
+  background: var(--accent-color);
+  border: none;
+  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.addBtn:hover {
+  opacity: 0.85;
+}
+
 .btn {
   background: var(--accent-color);
   color: white;

@@ -10,6 +10,8 @@ const THEMES = [
   { key: 'claw', label: 'Claw', color: '#0d0d0d' },
   { key: 'opencode', label: 'Opencode', color: '#212121' },
   { key: 'coffee', label: 'Coffee', color: '#3e2723' },
+  { key: 'calm', label: 'Calm', color: '#f0ebe3' },
+  { key: 'uniorec', label: 'Uniorec', color: '#1c1c2e' },
 ];
 
 const ANIMATIONS = [

@@ -1,10 +1,13 @@
 import { useLocalStorage } from './useLocalStorage';
 import { DEFAULT_SCENES } from '../constants/defaults';
 
-const DEFAULT_SCENES_KEY = 'cocoon_scenes_v3';
+const DEFAULT_SCENES_KEY = 'cocoon_scenes_v4';
 
 function seedScenes() {
-  return DEFAULT_SCENES.map((s) => ({ ...s, id: Date.now().toString() + Math.random().toString(36).slice(2, 6) }));
+  return DEFAULT_SCENES.map((s) => ({
+    ...s,
+    id: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+  }));
 }
 
 export function useSceneManager() {
@@ -30,10 +33,5 @@ export function useSceneManager() {
     if (onLoad) onLoad(scene);
   };
 
-  return {
-    scenes,
-    saveScene,
-    deleteScene,
-    loadScene,
-  };
+  return { scenes, saveScene, deleteScene, loadScene };
 }

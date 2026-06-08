@@ -1,0 +1,233 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  opacity: 0.5;
+}
+
+.toggleAll {
+  background: none;
+  border: var(--glass-border);
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.2s;
+}
+
+.toggleAll:hover {
+  background: var(--hover-bg);
+}
+
+.empty {
+  text-align: center;
+  font-size: 0.7rem;
+  opacity: 0.35;
+  padding: 0.5rem;
+  font-weight: 500;
+}
+
+.channelList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+  background: var(--card-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid color-mix(in srgb, var(--ch-color, var(--primary-color)) 20%, transparent);
+  transition: all 0.2s;
+}
+
+.channelActive {
+  border-color: color-mix(in srgb, var(--ch-color, var(--accent-color)) 50%, transparent);
+}
+
+.chToggle {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  background: color-mix(in srgb, var(--ch-color, var(--primary-color)) 20%, transparent);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.chToggle:hover {
+  background: color-mix(in srgb, var(--ch-color, var(--primary-color)) 40%, transparent);
+}
+
+.chInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.chName {
+  font-size: 0.65rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chVol {
+  font-size: 0.55rem;
+  opacity: 0.4;
+  font-weight: 600;
+}
+
+.chSlider {
+  width: 80px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  accent-color: var(--ch-color, var(--accent-color));
+  outline: none;
+  flex-shrink: 0;
+}
+
+.chSlider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--slider-track);
+  border-radius: 2px;
+}
+
+.chSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ch-color, var(--accent-color));
+  margin-top: -4px;
+}
+
+.chSlider::-moz-range-track {
+  height: 4px;
+  background: var(--slider-track);
+  border-radius: 2px;
+  border: none;
+}
+
+.chSlider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ch-color, var(--accent-color));
+  border: none;
+}
+
+.chRemove {
+  background: none;
+  border: none;
+  font-size: 0.6rem;
+  cursor: pointer;
+  opacity: 0.25;
+  color: var(--text-color);
+  padding: 0.15rem;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.chRemove:hover {
+  opacity: 0.7;
+}
+
+.masterSection {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--primary-color);
+  border-top-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+}
+
+.masterLabel {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+.masterPct {
+  font-size: 0.6rem;
+  opacity: 0.4;
+  font-weight: 600;
+  min-width: 2rem;
+  text-align: right;
+}
+
+.masterSlider {
+  flex: 1;
+  height: 5px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+  outline: none;
+}
+
+.masterSlider::-webkit-slider-runnable-track {
+  height: 5px;
+  background: var(--slider-track);
+  border-radius: 3px;
+}
+
+.masterSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  margin-top: -5px;
+  box-shadow: 0 2px 6px rgba(255, 140, 0, 0.3);
+}
+
+.masterSlider::-moz-range-track {
+  height: 5px;
+  background: var(--slider-track);
+  border-radius: 3px;
+  border: none;
+}
+
+.masterSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  border: none;
+}

@@ -10,15 +10,17 @@ const types = [
 const categories = [
   { key: 'all', label: 'All' },
   { key: 'visual', label: '🎬 Visual' },
-  { key: 'melodic', label: '🎵 Melodic' },
-  { key: 'atmospheric', label: '🌿 Atmospheric' },
+  { key: 'music', label: '🎵 Music' },
+  { key: 'nature', label: '🌿 Nature' },
+  { key: 'ambient', label: '🌊 Ambient' },
+  { key: 'city', label: '🏙️ City' },
 ];
 
 export default function ResourcesPanel({ resources, onAdd, onDelete }) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [type, setType] = useState('youtube');
-  const [category, setCategory] = useState('atmospheric');
+  const [category, setCategory] = useState('nature');
   const [filterCat, setFilterCat] = useState('all');
   const [search, setSearch] = useState('');
   const fileRef = useRef(null);
@@ -38,7 +40,7 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
     setName('');
     setUrl('');
     setType('youtube');
-    setCategory('atmospheric');
+    setCategory('nature');
   };
 
   const handleFileBrowse = () => fileRef.current?.click();

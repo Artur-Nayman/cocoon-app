@@ -2,14 +2,35 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { extractYtId } from '../utils/youtube';
 import styles from '../styles/SceneManager.module.css';
 
-export default function SceneManager({ onSave, currentConfig, resources, editingScene, onEditDone }) {
-  const [name, setName] = useState('');
-  const [ytId, setYtId] = useState('');
-  const [melodicUrl, setMelodicUrl] = useState('');
-  const [atmosUrl, setAtmosUrl] = useState('');
+function typeFromUrl(url) {
+  if (!url) return 'direct';
+  return url.includes('youtu') || url.includes('youtube') ? 'youtube' : 'direct';
+}
 
+function initFromProps(editingScene, currentConfig) {
+  if (editingScene) {
+    return {
+      name: editingScene.name,
+      ytId: editingScene.visual.videoId,
+      sceneChannels: editingScene.channels || [],
+    };
+  }
+  return {
+    name: currentConfig?.name || '',
+    ytId: currentConfig?.visual?.videoId || '',
+    sceneChannels: currentConfig?.channels || [],
+  };
+}
+
+export default function SceneManager({ onSave, currentConfig, resources, editingScene, onEditDone }) {
+  const init = initFromProps(editingScene, currentConfig);
+  const [name, setName] = useState(init.name);
+  const [ytId, setYtId] = useState(init.ytId);
+  const [sceneChannels, setSceneChannels] = useState(init.sceneChannels);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [dropdownUp, setDropdownUp] = useState(false);
+  const [newChUrl, setNewChUrl] = useState('');
+  const [newChName, setNewChName] = useState('');
   const dropdownRef = useRef(null);
   const btnRefs = useRef({});
 
@@ -28,15 +49,6 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
   }, [openDropdown]);
 
   useEffect(() => {
-    if (editingScene) {
-      setName(editingScene.name);
-      setYtId(editingScene.visual.videoId);
-      setMelodicUrl(editingScene.melodic.url || '');
-      setAtmosUrl(editingScene.atmospheric.url || '');
-    }
-  }, [editingScene]);
-
-  useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpenDropdown(null);
@@ -52,93 +64,90 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
     onSave({
       ...(editingScene ? { id: editingScene.id } : {}),
       name,
-      visual: { videoId, volume: currentConfig.visual.volume },
-      melodic: { url: melodicUrl, type: melodicUrl.includes('youtu') ? 'youtube' : 'direct', volume: currentConfig.melodic.volume },
-      atmospheric: { url: atmosUrl, type: atmosUrl.includes('youtu') ? 'youtube' : 'direct', volume: currentConfig.atmospheric.volume },
+      visual: { videoId, volume: currentConfig?.visual?.volume || 50 },
+      channels: sceneChannels.map(({ name: cn, url, type, volume, category }) => ({
+        name: cn, url, type: type || typeFromUrl(url), volume: volume || 50, category: category || 'ambient',
+      })),
     });
     setName('');
     setYtId('');
-    setMelodicUrl('');
-    setAtmosUrl('');
+    setSceneChannels([]);
     if (onEditDone) onEditDone();
   };
 
-  const pickResource = (field, resource) => {
-    if (field === 'ytId') {
-      setYtId(extractYtId(resource.url));
-    } else if (field === 'melodicUrl') {
-      setMelodicUrl(resource.url);
-    } else if (field === 'atmosUrl') {
-      setAtmosUrl(resource.url);
-    }
+  const addChannelToScene = () => {
+    if (!newChUrl.trim()) return;
+    setSceneChannels((prev) => [
+      ...prev,
+      {
+        name: newChName.trim() || 'Untitled',
+        url: newChUrl.trim(),
+        type: typeFromUrl(newChUrl),
+        volume: 50,
+        category: 'ambient',
+      },
+    ]);
+    setNewChUrl('');
+    setNewChName('');
+  };
+
+  const removeSceneChannel = (idx) => {
+    setSceneChannels((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const pickResource = (url) => {
+    setYtId(extractYtId(url));
     setOpenDropdown(null);
   };
-
-  const filteredByCategory = (field) => {
-    if (field === 'ytId') return resources.filter((r) => r.category === 'visual');
-    if (field === 'melodicUrl') return resources.filter((r) => r.category === 'melodic');
-    if (field === 'atmosUrl') return resources.filter((r) => r.category === 'atmospheric');
-    return [];
-  };
-
-  const renderDropdown = (field) => (
-    <div className={styles.dropdownWrapper}>
-      <button
-        ref={(el) => { btnRefs.current[field] = el; }}
-        className={styles.resourceBtn}
-        onClick={() => toggleDropdown(field)}
-        title="Pick from saved resources"
-      >
-        📂
-      </button>
-      {openDropdown === field && (
-        <div className={`${styles.dropdown} ${dropdownUp ? styles.dropdownUp : ''}`} ref={dropdownRef}>
-          {filteredByCategory(field).length === 0 ? (
-            <span className={styles.dropdownEmpty}>No matching resources</span>
-          ) : (
-            filteredByCategory(field).map((r) => (
-              <button
-                key={r.id}
-                className={styles.dropdownItem}
-                onClick={() => pickResource(field, r)}
-              >
-                <span className={styles.dropdownName}>{r.name}</span>
-                <span className={styles.dropdownType}>{r.category}</span>
-              </button>
-            ))
-          )}
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <>
       <div className={styles.field}>
-        <label htmlFor="scene-name-cfg">Scene Name</label>
-        <input id="scene-name-cfg" className={styles.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Rainy Nook" />
+        <label htmlFor="scene-name">Scene Name</label>
+        <input id="scene-name" className={styles.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Rainy Nook" />
       </div>
       <div className={styles.field}>
-        <label htmlFor="scene-yt-cfg">YouTube Video ID</label>
+        <label htmlFor="scene-yt">YouTube Video ID</label>
         <div className={styles.inputRow}>
-          <input id="scene-yt-cfg" className={styles.input} value={ytId} onChange={(e) => setYtId(e.target.value)} placeholder="e.g. jfKfPfyJRdk" style={{ flex: 1 }} />
-          {renderDropdown('ytId')}
+          <input id="scene-yt" className={styles.input} value={ytId} onChange={(e) => setYtId(e.target.value)} placeholder="e.g. jfKfPfyJRdk" style={{ flex: 1 }} />
+          <div className={styles.dropdownWrapper}>
+            <button ref={(el) => { btnRefs.current.ytId = el; }} className={styles.resourceBtn} onClick={() => toggleDropdown('ytId')} title="Pick from saved resources">📂</button>
+            {openDropdown === 'ytId' && (
+              <div className={`${styles.dropdown} ${dropdownUp ? styles.dropdownUp : ''}`} ref={dropdownRef}>
+                {resources.filter((r) => r.category === 'visual').length === 0 ? (
+                  <span className={styles.dropdownEmpty}>No visual resources</span>
+                ) : (
+                  resources.filter((r) => r.category === 'visual').map((r) => (
+                    <button key={r.id} className={styles.dropdownItem} onClick={() => pickResource(r.url)}>
+                      <span className={styles.dropdownName}>{r.name}</span>
+                      <span className={styles.dropdownType}>visual</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
       <div className={styles.field}>
-        <label htmlFor="scene-mel-cfg">Melodic URL</label>
+        <label>Channels (Sounds)</label>
+        <div className={styles.channelList}>
+          {sceneChannels.map((ch, i) => (
+            <div key={i} className={styles.channelRow}>
+              <span className={styles.channelName}>{ch.name}</span>
+              <span className={styles.channelUrl}>{ch.url.length > 35 ? ch.url.slice(0, 35) + '…' : ch.url}</span>
+              <button className={styles.chRemove} onClick={() => removeSceneChannel(i)}>✕</button>
+            </div>
+          ))}
+        </div>
         <div className={styles.inputRow}>
-          <input id="scene-mel-cfg" className={styles.input} value={melodicUrl} onChange={(e) => setMelodicUrl(e.target.value)} placeholder="Music stream URL" style={{ flex: 1 }} />
-          {renderDropdown('melodicUrl')}
+          <input className={styles.input} value={newChName} onChange={(e) => setNewChName(e.target.value)} placeholder="Name" style={{ flex: 0.4 }} />
+          <input className={styles.input} value={newChUrl} onChange={(e) => setNewChUrl(e.target.value)} placeholder="YouTube or audio URL" style={{ flex: 1 }} />
+          <button className={styles.addBtn} onClick={addChannelToScene}>+</button>
         </div>
       </div>
-      <div className={styles.field}>
-        <label htmlFor="scene-atm-cfg">Atmospheric URL</label>
-        <div className={styles.inputRow}>
-          <input id="scene-atm-cfg" className={styles.input} value={atmosUrl} onChange={(e) => setAtmosUrl(e.target.value)} placeholder="Ambient sound URL" style={{ flex: 1 }} />
-          {renderDropdown('atmosUrl')}
-        </div>
-      </div>
+
       <button className={styles.btn} onClick={handleSave}>Save Scene</button>
     </>
   );
@@ -174,8 +183,7 @@ export function CocoonsTab({ scenes, onLoad, onDelete, onEdit }) {
               </div>
               <div className={styles.listItemMeta}>
                 <span>🎬 {s.visual.videoId}</span>
-                {s.melodic.url && <span>🎵 {s.melodic.url.length > 40 ? s.melodic.url.slice(0, 40) + '…' : s.melodic.url}</span>}
-                {s.atmospheric.url && <span>🌿 {s.atmospheric.url.length > 40 ? s.atmospheric.url.slice(0, 40) + '…' : s.atmospheric.url}</span>}
+                <span>🔊 {(s.channels || []).length} sounds</span>
               </div>
             </div>
           ))

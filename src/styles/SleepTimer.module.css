@@ -1,0 +1,53 @@
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  opacity: 0.4;
+  white-space: nowrap;
+}
+
+.options {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.pill {
+  background: none;
+  border: 1px solid var(--primary-color);
+  border-radius: 6px;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.55rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-color);
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+
+.pill:hover {
+  opacity: 0.8;
+}
+
+.pill.active {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  opacity: 1;
+}
+
+.countdown {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-left: 0.3rem;
+  font-variant-numeric: tabular-nums;
+}

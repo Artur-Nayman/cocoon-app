@@ -267,6 +267,74 @@
   gap: 0.3rem;
 }
 
+.visualVolRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.2rem 0;
+}
+
+.visualVolLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  opacity: 0.6;
+  min-width: 3.5rem;
+}
+
+.visualVolSlider {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  accent-color: var(--accent-color);
+  outline: none;
+}
+
+.visualVolSlider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--slider-track);
+  border-radius: 2px;
+}
+
+.visualVolSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  margin-top: -5px;
+  box-shadow: 0 2px 6px rgba(255, 140, 0, 0.3);
+}
+
+.visualVolSlider::-moz-range-track {
+  height: 4px;
+  background: var(--slider-track);
+  border-radius: 2px;
+  border: none;
+}
+
+.visualVolSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  border: none;
+}
+
+.visualVolPct {
+  font-size: 0.6rem;
+  opacity: 0.4;
+  font-weight: 600;
+  min-width: 2.2rem;
+  text-align: right;
+}
+
 .masterRow {
   display: flex;
   align-items: center;
@@ -632,6 +700,34 @@
   font-size: 0.75rem;
   font-weight: 600;
   z-index: 200;
+}
+
+.saveSceneBtn {
+  width: 100%;
+  background: var(--accent-color);
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: opacity 0.2s;
+  margin-top: 0.3rem;
+}
+
+.saveSceneBtn:hover {
+  opacity: 0.85;
+}
+
+.timerBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  opacity: 0.8;
+  letter-spacing: 0.5px;
 }
 
 @media (max-width: 900px) {
