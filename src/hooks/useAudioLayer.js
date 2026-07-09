@@ -2,23 +2,8 @@ import { useRef, useCallback, useEffect, useState } from 'react';
 import { getAudioContext } from '../utils/audioContext';
 import { fadeVolume } from '../utils/fadeAudio';
 
-let hlsModule = null;
-let hlsPromise = null;
-
-async function ensureHls() {
-  if (hlsModule) return hlsModule;
-  if (!hlsPromise) {
-    hlsPromise = import('hls.js').then((mod) => {
-      hlsModule = mod.default;
-      return hlsModule;
-    });
-  }
-  return hlsPromise;
-}
-
 export function useAudioLayer() {
   const elRef = useRef(null);
-  const hlsRef = useRef(null);
   const volumeRef = useRef(0.5);
   const readyRef = useRef(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -41,11 +26,17 @@ export function useAudioLayer() {
 
   const tryPlay = useCallback((el) => {
     if (!el) return;
-    el.play().catch((err) => {
+    console.log('[useAudioLayer] tryPlay, readyRef:', readyRef.current, 'src:', el.src ? el.src.substring(0, 60) + '...' : 'none');
+    el.play().then(() => {
+      console.log('[useAudioLayer] play() resolved OK');
+    }).catch((err) => {
       console.warn('[useAudioLayer] play() rejected:', err.message);
       const ctx = getAudioContext();
+      console.log('[useAudioLayer] AudioContext state:', ctx.state);
       if (ctx.state === 'suspended') {
-        ctx.resume().then(() => el.play()).catch((e2) => {
+        ctx.resume().then(() => el.play()).then(() => {
+          console.log('[useAudioLayer] play() after resume OK');
+        }).catch((e2) => {
           console.warn('[useAudioLayer] retry after resume failed:', e2.message);
         });
       }
@@ -54,12 +45,9 @@ export function useAudioLayer() {
 
   const load = useCallback(async (url, volume, fadeMs = 0) => {
     ensureSource();
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
     const el = elRef.current;
     if (!el) return;
+    console.log('[useAudioLayer] load:', url.substring(0, 80) + '...', 'vol:', volume);
     readyRef.current = false;
     volumeRef.current = volume;
 
@@ -73,28 +61,6 @@ export function useAudioLayer() {
     setCurrentTime(0);
     setDuration(0);
 
-    const isHls = url.includes('.m3u8') || url.includes('m3u8');
-
-    if (isHls) {
-      const Hls = await ensureHls();
-      if (Hls && Hls.isSupported()) {
-        el.loop = false;
-        const hls = new Hls();
-        hlsRef.current = hls;
-        hls.loadSource(url);
-        hls.attachMedia(el);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          el.volume = 0;
-          tryPlay(el);
-          setTimeout(() => {
-            setDuration(el.duration || 0);
-            readyRef.current = true;
-          }, 100);
-        });
-        return;
-      }
-    }
-
     el.loop = true;
     el.volume = 0;
     el.src = url;
@@ -103,7 +69,10 @@ export function useAudioLayer() {
       console.warn('[useAudioLayer] media error:', el.error ? `code=${el.error.code} message=${el.error.message}` : 'unknown');
     }, { once: true });
 
-    const markReady = () => { readyRef.current = true; };
+    const markReady = () => {
+      console.log('[useAudioLayer] canplay fired, ready');
+      readyRef.current = true;
+    };
     el.addEventListener('canplay', markReady, { once: true });
     el.addEventListener('loadedmetadata', () => setDuration(el.duration || 0), { once: true });
     el.load();
@@ -134,7 +103,11 @@ export function useAudioLayer() {
 
   const fadeInResume = useCallback(async (fadeMs = 0) => {
     const el = elRef.current;
-    if (!el || !readyRef.current) return;
+    console.log('[useAudioLayer] fadeInResume, readyRef:', readyRef.current, 'fadeMs:', fadeMs);
+    if (!el || !readyRef.current) {
+      console.warn('[useAudioLayer] fadeInResume BAILED: el=', !!el, 'ready=', !!readyRef.current);
+      return;
+    }
     if (fadeMs > 0) {
       el.volume = 0;
       tryPlay(el);
@@ -158,7 +131,6 @@ export function useAudioLayer() {
 
   useEffect(() => {
     return () => {
-      if (hlsRef.current) hlsRef.current.destroy();
       if (elRef.current) {
         elRef.current.pause();
         elRef.current.src = '';

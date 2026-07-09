@@ -229,6 +229,11 @@ export default function App() {
     });
   }, []);
 
+  /* Auto-exit zen when window gets maximized (e.g. snap-to-top) */
+  useEffect(() => {
+    if (maximized && zenMode) setZenMode(false);
+  }, [maximized, zenMode]);
+
   useEffect(() => {
     if (zenMode) {
       window.electronAPI?.saveWindowSize();
@@ -241,6 +246,16 @@ export default function App() {
   useEffect(() => {
     if (zenMode) resizeToCard();
   }, [zenMode, zenBgMode, resizeToCard]);
+
+  /* Auto-resize window when card content changes in zen mode */
+  useEffect(() => {
+    if (!zenMode || !window.electronAPI?.resizeTo) return;
+    const card = document.querySelector(`.${styles.playerCard}`);
+    if (!card) return;
+    const ro = new ResizeObserver(() => resizeToCard());
+    ro.observe(card);
+    return () => ro.disconnect();
+  }, [zenMode, resizeToCard]);
 
   const shortcuts = useMemo(() => ({
     onToggleAll: handleToggleAll,
@@ -284,7 +299,7 @@ export default function App() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'sounds':
-        return <SoundBrowser onAddChannel={handleAddChannel} onAddVisual={handleAddVisual} />;
+        return <SoundBrowser onAddChannel={handleAddChannel} onAddVisual={handleAddVisual} onSaveResource={addResource} />;
       case 'mixer':
         return (
           <div>
@@ -365,10 +380,17 @@ export default function App() {
       )}
       <div className={styles.playerColumn}>
         <div className={styles.playerCard}>
-          {zenMode && (
-            <button className={styles.zenExit} onClick={() => setZenMode(false)} title="Exit zen mode">←</button>
+          {zenMode ? (
+            <div className={styles.zenToolbar}>
+              <button className={styles.zenToolBtn} onClick={() => setShowTheme(true)} title="Theme">🎨</button>
+              <button className={styles.zenToolBtn} onClick={() => setZenMode(false)} title="Exit Zen">⬅</button>
+              {window.electronAPI && (
+                <button className={styles.zenToolBtn} onClick={() => window.electronAPI.close()} title="Close">✕</button>
+              )}
+            </div>
+          ) : (
+            <h1>Digital Cocoon</h1>
           )}
-          <h1>Digital Cocoon</h1>
           {activeScene && <div className={styles.sceneTitle}>{activeScene.name}</div>}
           <div className={styles.playerMediaWrap}>
             <VisualLayer

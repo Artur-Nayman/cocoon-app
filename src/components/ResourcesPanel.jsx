@@ -1,4 +1,5 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useCallback } from 'react';
+import { searchYouTube } from '../utils/youtubeSearch';
 import styles from '../styles/ResourcesPanel.module.css';
 
 const types = [
@@ -24,6 +25,10 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
   const [filterCat, setFilterCat] = useState('all');
   const [search, setSearch] = useState('');
   const fileRef = useRef(null);
+  const [ytQuery, setYtQuery] = useState('');
+  const [ytResults, setYtResults] = useState([]);
+  const [ytSearching, setYtSearching] = useState(false);
+  const [showYtSearch, setShowYtSearch] = useState(false);
 
   const filtered = useMemo(
     () => resources.filter(
@@ -50,6 +55,24 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
     if (!file) return;
     setUrl(URL.createObjectURL(file));
     if (!name) setName(file.name.replace(/\.[^.]+$/, ''));
+  };
+
+  const handleYtSearch = useCallback(async () => {
+    if (!ytQuery.trim()) return;
+    setYtSearching(true);
+    try {
+      setYtResults(await searchYouTube(ytQuery));
+    } catch (err) {
+      console.warn('YouTube search failed:', err);
+    }
+    setYtSearching(false);
+  }, [ytQuery]);
+
+  const saveYtResult = (result) => {
+    onAdd({ name: result.title, url: result.url, type: 'youtube', category: 'visual' });
+    setShowYtSearch(false);
+    setYtQuery('');
+    setYtResults([]);
   };
 
   return (
@@ -97,6 +120,45 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
           ))}
         </div>
         <button className={styles.addBtn} onClick={handleAdd}>Add Resource</button>
+      </div>
+
+      <div className={styles.ytSection}>
+        <button
+          className={styles.ytToggle}
+          onClick={() => setShowYtSearch((v) => !v)}
+        >
+          {showYtSearch ? '▼ Hide' : '▶'} YouTube Search
+        </button>
+        {showYtSearch && (
+          <div className={styles.ytSearch}>
+            <div className={styles.searchBar}>
+              <input
+                className={styles.ytInput}
+                value={ytQuery}
+                onChange={(e) => setYtQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()}
+                placeholder="Search YouTube..."
+              />
+              <button className={styles.ytBtn} onClick={handleYtSearch} disabled={ytSearching}>
+                {ytSearching ? '…' : '🔍'}
+              </button>
+            </div>
+            {ytResults.length > 0 && (
+              <div className={styles.ytGrid}>
+                {ytResults.map((r) => (
+                  <div key={r.id} className={styles.ytCard}>
+                    <img className={styles.ytThumb} src={r.thumbnail} alt={r.title} loading="lazy" />
+                    <div className={styles.ytInfo}>
+                      <div className={styles.ytTitle}>{r.title}</div>
+                      <div className={styles.ytMeta}>{r.channel}</div>
+                    </div>
+                    <button className={styles.ytSaveBtn} onClick={() => saveYtResult(r)} title="Save to Resources">💾</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className={styles.toolbar}>

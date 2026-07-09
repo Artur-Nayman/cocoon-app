@@ -1,3 +1,4 @@
+#!/usr/bin/env xdg-open
 [Desktop Entry]
 Name=Digital Cocoon
 Comment=Layered audio/video ambient mixer

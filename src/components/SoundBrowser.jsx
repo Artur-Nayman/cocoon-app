@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
-import { BACKEND_URL } from '../config';
 import { DEFAULT_BUILTIN_SOUNDS, CHANNEL_CATEGORIES } from '../constants/defaults';
+import { searchYouTube } from '../utils/youtubeSearch';
 import styles from '../styles/SoundBrowser.module.css';
 
-export default function SoundBrowser({ onAddChannel, onAddVisual }) {
+export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [ytQuery, setYtQuery] = useState('');
@@ -15,11 +15,7 @@ export default function SoundBrowser({ onAddChannel, onAddVisual }) {
     if (!ytQuery.trim()) return;
     setSearching(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/youtube/search?q=${encodeURIComponent(ytQuery.trim())}`);
-      const data = await res.json();
-      if (data.success) {
-        setSearchResults(data.results);
-      }
+      setSearchResults(await searchYouTube(ytQuery));
     } catch (err) {
       console.warn('YouTube search failed:', err);
     }
@@ -63,6 +59,12 @@ export default function SoundBrowser({ onAddChannel, onAddVisual }) {
     }
   }, [onAddChannel, onAddVisual]);
 
+  const saveYtToResource = useCallback((result) => {
+    if (onSaveResource) {
+      onSaveResource({ name: result.title, url: result.url, type: 'youtube', category: 'music' });
+    }
+  }, [onSaveResource]);
+
   return (
     <div className={styles.browser}>
       <div className={styles.searchBar}>
@@ -93,6 +95,9 @@ export default function SoundBrowser({ onAddChannel, onAddVisual }) {
                 <div className={styles.ytActions}>
                   <button className={styles.addBtn} onClick={() => addYtResult(r, false)} title="Add as audio">🎵</button>
                   <button className={styles.addBtn} onClick={() => addYtResult(r, true)} title="Play as video">🎬</button>
+                  {onSaveResource && (
+                    <button className={styles.addBtn} onClick={() => saveYtToResource(r)} title="Save to Resources">💾</button>
+                  )}
                 </div>
               </div>
             ))}

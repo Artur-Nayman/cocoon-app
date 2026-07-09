@@ -81,13 +81,7 @@
   left: 0;
   height: auto;
   box-sizing: border-box;
-  -webkit-app-region: drag;
   background: transparent !important;
-}
-
-.app.zen button,
-.app.zen input {
-  -webkit-app-region: no-drag;
 }
 
 .app.zen .playerCard {
@@ -102,6 +96,16 @@
   -webkit-backdrop-filter: none;
   box-shadow: none;
   border: 1px solid var(--glass-border);
+  -webkit-app-region: no-drag;
+}
+
+.app.zen .sceneTitle {
+  -webkit-app-region: drag;
+  cursor: grab;
+}
+
+.app.zen .sceneTitle:active {
+  cursor: grabbing;
 }
 
 .app.zen.zenBgTransparent .playerCard {
@@ -111,12 +115,6 @@
   border: 1px solid rgba(255,255,255,0.15);
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   padding: 0.6rem;
-}
-
-.app.zen.zenBgTransparent .playerCard h1 {
-  font-size: 0.75rem;
-  opacity: 0.5;
-  margin: 0;
 }
 
 .app.zen.zenBgTransparent .playerCard .sceneTitle {
@@ -233,24 +231,48 @@
   grid-row: 1;
 }
 
-.zenExit {
+/* --- Zen toolbar (hover-reveal) --- */
+.zenToolbar {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  background: none;
-  border: none;
-  font-size: 1.3rem;
-  cursor: pointer;
-  color: var(--text-color);
-  opacity: 0.3;
-  z-index: 10;
-  transition: opacity var(--transition);
-  line-height: 1;
-  padding: 0.2rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0.5rem;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  -webkit-app-region: no-drag;
 }
 
-.zenExit:hover {
-  opacity: 0.8;
+.playerCard:hover .zenToolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.zenToolBtn {
+  background: none;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-color);
+  opacity: 0.45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.zenToolBtn:hover {
+  opacity: 1;
+  background: var(--hover-bg);
 }
 
 .controlBtn {

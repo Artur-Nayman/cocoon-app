@@ -1,15 +1,6 @@
 import { useMemo } from 'react';
-import { CHANNEL_COLORS } from '../constants/defaults';
+import { CHANNEL_COLORS, CHANNEL_ICONS } from '../constants/defaults';
 import styles from '../styles/MixerPanel.module.css';
-
-const CHANNEL_ICONS = {
-  nature: '🌿',
-  city: '🏙️',
-  music: '🎵',
-  ambient: '🌊',
-  white_noise: '🤍',
-  voice: '🎙️',
-};
 
 export default function MixerPanel({ channels, masterVolume, onMasterVolume, onChannelVolume, onToggleChannel, onRemoveChannel, onToggleAll, allPlaying }) {
   const sorted = useMemo(() => {
