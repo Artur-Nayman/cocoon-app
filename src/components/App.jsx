@@ -212,7 +212,12 @@ export default function App() {
 
   useEffect(() => {
     if (window.electronAPI?.onMaximizedChange) {
-      window.electronAPI.onMaximizedChange(setMaximized);
+      window.electronAPI.onMaximizedChange((isMaximized) => {
+        setMaximized(isMaximized);
+        if (isMaximized) {
+          setZenMode(false);
+        }
+      });
     }
   }, []);
 
@@ -228,11 +233,6 @@ export default function App() {
       }
     });
   }, []);
-
-  /* Auto-exit zen when window gets maximized (e.g. snap-to-top) */
-  useEffect(() => {
-    if (maximized && zenMode) setZenMode(false);
-  }, [maximized, zenMode]);
 
   useEffect(() => {
     if (zenMode) {
