@@ -78,7 +78,7 @@ export function useAudioLayer() {
     el.load();
 
     setDuration(el.duration || 0);
-  }, [ensureSource, tryPlay]);
+  }, [ensureSource]);
 
   const setVolume = useCallback((vol) => {
     volumeRef.current = vol;
