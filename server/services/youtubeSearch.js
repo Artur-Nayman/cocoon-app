@@ -1,12 +1,25 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 export function searchYouTube(query, maxResults = 10) {
-  const safeQuery = query.replace(/"/g, '\\"');
-  const jsRuntime = process.env.YT_DLP_JS || '--js-runtimes node';
+  const jsRuntimeRaw = process.env.YT_DLP_JS || '--js-runtimes node';
+  const jsRuntimeArgs = jsRuntimeRaw.split(' ').filter(Boolean);
 
   try {
-    const cmd = `yt-dlp ${jsRuntime} --flat-playlist --dump-json "ytsearch${maxResults}:${safeQuery}" 2>/dev/null`;
-    const output = execSync(cmd, { timeout: 30000, encoding: 'utf-8' }).trim();
+    const args = [
+      ...jsRuntimeArgs,
+      '--flat-playlist',
+      '--dump-json',
+      `ytsearch${maxResults}:${query}`
+    ];
+
+    // Using execFileSync avoids shell interpretation of the query,
+    // mitigating command injection vulnerabilities.
+    // stdio: ['ignore', 'pipe', 'ignore'] mimics the previous 2>/dev/null behavior
+    const output = execFileSync('yt-dlp', args, {
+      timeout: 30000,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
     if (!output) return [];
 
     const lines = output.split('\n').filter(Boolean);
