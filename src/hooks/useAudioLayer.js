@@ -1,7 +1,6 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { getAudioContext } from '../utils/audioContext';
 import { fadeVolume } from '../utils/fadeAudio';
-import { logger } from '../utils/logger';
 
 export function useAudioLayer() {
   const elRef = useRef(null);
@@ -27,18 +26,18 @@ export function useAudioLayer() {
 
   const tryPlay = useCallback((el) => {
     if (!el) return;
-    logger.debug('[useAudioLayer] tryPlay, readyRef:', readyRef.current, 'src:', el.src ? el.src.substring(0, 60) + '...' : 'none');
+    console.log('[useAudioLayer] tryPlay, readyRef:', readyRef.current, 'src:', el.src ? el.src.substring(0, 60) + '...' : 'none');
     el.play().then(() => {
-      logger.debug('[useAudioLayer] play() resolved OK');
+      console.log('[useAudioLayer] play() resolved OK');
     }).catch((err) => {
-      logger.warn('[useAudioLayer] play() rejected:', err.message);
+      console.warn('[useAudioLayer] play() rejected:', err.message);
       const ctx = getAudioContext();
-      logger.debug('[useAudioLayer] AudioContext state:', ctx.state);
+      console.log('[useAudioLayer] AudioContext state:', ctx.state);
       if (ctx.state === 'suspended') {
         ctx.resume().then(() => el.play()).then(() => {
-          logger.debug('[useAudioLayer] play() after resume OK');
+          console.log('[useAudioLayer] play() after resume OK');
         }).catch((e2) => {
-          logger.warn('[useAudioLayer] retry after resume failed:', e2.message);
+          console.warn('[useAudioLayer] retry after resume failed:', e2.message);
         });
       }
     });
@@ -48,7 +47,7 @@ export function useAudioLayer() {
     ensureSource();
     const el = elRef.current;
     if (!el) return;
-    logger.debug('[useAudioLayer] load:', url.substring(0, 80) + '...', 'vol:', volume);
+    console.log('[useAudioLayer] load:', url.substring(0, 80) + '...', 'vol:', volume);
     readyRef.current = false;
     volumeRef.current = volume;
 
@@ -67,11 +66,11 @@ export function useAudioLayer() {
     el.src = url;
 
     el.addEventListener('error', () => {
-      logger.warn('[useAudioLayer] media error:', el.error ? `code=${el.error.code} message=${el.error.message}` : 'unknown');
+      console.warn('[useAudioLayer] media error:', el.error ? `code=${el.error.code} message=${el.error.message}` : 'unknown');
     }, { once: true });
 
     const markReady = () => {
-      logger.debug('[useAudioLayer] canplay fired, ready');
+      console.log('[useAudioLayer] canplay fired, ready');
       readyRef.current = true;
     };
     el.addEventListener('canplay', markReady, { once: true });
@@ -104,9 +103,9 @@ export function useAudioLayer() {
 
   const fadeInResume = useCallback(async (fadeMs = 0) => {
     const el = elRef.current;
-    logger.debug('[useAudioLayer] fadeInResume, readyRef:', readyRef.current, 'fadeMs:', fadeMs);
+    console.log('[useAudioLayer] fadeInResume, readyRef:', readyRef.current, 'fadeMs:', fadeMs);
     if (!el || !readyRef.current) {
-      logger.warn('[useAudioLayer] fadeInResume BAILED: el=', !!el, 'ready=', !!readyRef.current);
+      console.warn('[useAudioLayer] fadeInResume BAILED: el=', !!el, 'ready=', !!readyRef.current);
       return;
     }
     if (fadeMs > 0) {
