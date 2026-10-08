@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
-import { DEFAULT_BUILTIN_SOUNDS, CHANNEL_CATEGORIES } from '../constants/defaults';
-import { searchYouTube } from '../utils/youtubeSearch';
-import { logger } from '../utils/logger';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { CHANNEL_CATEGORIES, DEFAULT_BUILTIN_SOUNDS } from '../constants/defaults';
 import styles from '../styles/SoundBrowser.module.css';
+import { logger } from '../utils/logger';
+import { searchYouTube } from '../utils/youtubeSearch';
 
 export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource }) {
   const [activeCategory, setActiveCategory] = useState('all');
@@ -98,7 +98,7 @@ export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource
           onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()}
           placeholder="Search YouTube..."
         />
-        <button className={styles.searchBtn} onClick={handleYtSearch} disabled={searching}>
+        <button type="button" className={styles.searchBtn} onClick={handleYtSearch} disabled={searching} aria-label="Search">
           {searching ? '…' : '🔍'}
         </button>
       </div>
@@ -115,10 +115,10 @@ export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource
                   <div className={styles.ytMeta}>{r.channel} · {r.duration > 0 ? `${Math.floor(r.duration / 60)}:${String(r.duration % 60).padStart(2, '0')}` : '?'}</div>
                 </div>
                 <div className={styles.ytActions}>
-                  <button className={styles.addBtn} onClick={() => addYtResult(r, false)} title="Add as audio">🎵</button>
-                  <button className={styles.addBtn} onClick={() => addYtResult(r, true)} title="Play as video">🎬</button>
+                  <button type="button" className={styles.addBtn} onClick={() => addYtResult(r, false)} title="Add as audio" aria-label="Add as audio">🎵</button>
+                  <button type="button" className={styles.addBtn} onClick={() => addYtResult(r, true)} title="Play as video" aria-label="Play as video">🎬</button>
                   {onSaveResource && (
-                    <button className={styles.addBtn} onClick={() => saveYtToResource(r)} title="Save to Resources">💾</button>
+                    <button type="button" className={styles.addBtn} onClick={() => saveYtToResource(r)} title="Save to Resources" aria-label="Save to Resources">💾</button>
                   )}
                 </div>
               </div>
@@ -129,11 +129,13 @@ export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource
 
       <div className={styles.categories}>
         <button
+          type="button"
           className={`${styles.catPill} ${activeCategory === 'all' ? styles.catActive : ''}`}
           onClick={() => setActiveCategory('all')}
         >All</button>
         {CHANNEL_CATEGORIES.map((c) => (
           <button
+            type="button"
             key={c.key}
             className={`${styles.catPill} ${activeCategory === c.key ? styles.catActive : ''}`}
             onClick={() => setActiveCategory(c.key)}
@@ -149,11 +151,16 @@ export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource
       />
 
       <div className={styles.soundGrid}>
-        {filteredBuiltins.slice(0, visibleCount).map((sound, i) => (
-          <div key={`${sound.name}-${i}`} className={styles.soundCard} onClick={() => addBuiltin(sound)}>
+        {filteredBuiltins.slice(0, visibleCount).map((sound) => (
+          <button
+            type="button"
+            key={sound.id || sound.url || sound.name}
+            className={styles.soundCard}
+            onClick={() => addBuiltin(sound)}
+          >
             <span className={styles.soundIcon}>{sound.icon}</span>
             <span className={styles.soundName}>{sound.name}</span>
-          </div>
+          </button>
         ))}
       </div>
       {visibleCount < filteredBuiltins.length && (

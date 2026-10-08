@@ -15,7 +15,7 @@ export default function MixerPanel({ channels, masterVolume, onMasterVolume, onC
     <div className={styles.panel}>
       <div className={styles.header}>
         <span className={styles.title}>Mixer</span>
-        <button className={styles.toggleAll} onClick={onToggleAll}>
+        <button type="button" className={styles.toggleAll} onClick={onToggleAll}>
           {allPlaying ? '⏸ All' : '▶️ All'}
         </button>
       </div>
@@ -34,7 +34,7 @@ export default function MixerPanel({ channels, masterVolume, onMasterVolume, onC
               className={`${styles.channel} ${isActive ? styles.channelActive : ''}`}
               style={{ '--ch-color': color }}
             >
-              <button className={styles.chToggle} onClick={() => onToggleChannel(ch.id)}>
+              <button type="button" className={styles.chToggle} onClick={() => onToggleChannel(ch.id)} aria-label={ch.name}>
                 <span>{CHANNEL_ICONS[ch.category] || '🔊'}</span>
               </button>
               <div className={styles.chInfo}>
@@ -49,7 +49,7 @@ export default function MixerPanel({ channels, masterVolume, onMasterVolume, onC
                 value={ch.volume ?? 50}
                 onChange={(e) => onChannelVolume(ch.id, Number(e.target.value))}
               />
-              <button className={styles.chRemove} onClick={() => onRemoveChannel(ch.id)}>✕</button>
+              <button type="button" className={styles.chRemove} onClick={() => onRemoveChannel(ch.id)} aria-label="Remove channel">✕</button>
             </div>
           );
         })}

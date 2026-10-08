@@ -1,12 +1,12 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { useSceneManager } from '../hooks/useSceneManager';
-import { useResourceManager } from '../hooks/useResourceManager';
-import { useSleepTimer } from '../hooks/useSleepTimer';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { extractYtId } from '../utils/youtube';
+import { useResourceManager } from '../hooks/useResourceManager';
+import { useSceneManager } from '../hooks/useSceneManager';
+import { useSleepTimer } from '../hooks/useSleepTimer';
 import styles from '../styles/App.module.css'; // used for querySelector('.playerCard')
-import { initialVisual, genChannelId } from './constants';
+import { extractYtId } from '../utils/youtube';
 import { AppContext } from './AppContextObj';
+import { genChannelId, initialVisual } from './constants';
 
 
 
@@ -212,7 +212,7 @@ export default function AppProvider({ children }) {
   }, [zenMode, resizeToCard]);
 
   useEffect(() => {
-    if (zenMode) resizeToCard();
+    if (zenMode && zenBgMode) resizeToCard();
   }, [zenMode, zenBgMode, resizeToCard]);
 
   /* Auto-resize window when card content changes in zen mode */

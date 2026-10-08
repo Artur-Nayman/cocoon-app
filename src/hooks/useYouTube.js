@@ -1,11 +1,13 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 let apiReady = false;
 const readyCallbacks = [];
 
 function onYouTubeIframeAPIReady() {
   apiReady = true;
-  readyCallbacks.forEach(fn => fn());
+  for (const fn of readyCallbacks) {
+    fn();
+  }
   readyCallbacks.length = 0;
 }
 
@@ -57,25 +59,22 @@ export function useYouTube(containerId) {
     }
 
     return () => {
-      if (playerRef.current && playerRef.current.destroy) {
-        playerRef.current.destroy();
-        playerRef.current = null;
-      }
+      playerRef.current?.destroy?.();
+      playerRef.current = null;
     };
   }, [containerId]);
 
   const loadVideo = useCallback((videoId, volume) => {
     const p = playerRef.current;
-    if (!p || !p.loadVideoById) return;
+    if (!p?.loadVideoById) return;
     p.loadVideoById(videoId);
     setTimeout(() => {
-      if (p && p.setVolume) p.setVolume(volume);
+      p?.setVolume?.(volume);
     }, 500);
   }, []);
 
   const setVolume = useCallback((vol) => {
-    const p = playerRef.current;
-    if (p && p.setVolume) p.setVolume(vol);
+    playerRef.current?.setVolume?.(vol);
   }, []);
 
   const pause = useCallback(() => {

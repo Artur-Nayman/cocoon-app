@@ -1,5 +1,5 @@
-import ChannelCard from './ChannelCard';
 import styles from '../styles/ChannelGrid.module.css';
+import ChannelCard from './ChannelCard';
 
 export default function ChannelGrid({ channels, masterVolume, onToggle, onVolume, onRemove, onBackendStatus }) {
   return (

@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import styles from '../styles/SceneManager.module.css';
+import { logger } from '../utils/logger';
 import { extractYtId } from '../utils/youtube';
 import { searchYouTube } from '../utils/youtubeSearch';
-import { logger } from '../utils/logger';
-import styles from '../styles/SceneManager.module.css';
 
 function typeFromUrl(url) {
   if (!url) return 'direct';
@@ -155,15 +155,15 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
         <div className={styles.inputRow}>
           <input id="scene-yt" className={styles.input} value={ytId} onChange={(e) => setYtId(e.target.value)} placeholder="e.g. jfKfPfyJRdk" style={{ flex: 1 }} />
           <div className={styles.dropdownWrapper}>
-            <button ref={(el) => { btnRefs.current.ytId = el; }} className={styles.resourceBtn} onClick={() => toggleDropdown('ytId')} title="Pick from saved resources">📂</button>
-            <button className={styles.resourceBtn} onClick={() => setYtSearchFor(ytSearchFor === 'visual' ? null : 'visual')} title="Search YouTube">🔍</button>
+            <button type="button" ref={(el) => { btnRefs.current.ytId = el; }} className={styles.resourceBtn} onClick={() => toggleDropdown('ytId')} title="Pick from saved resources" aria-label="Pick from saved resources">📂</button>
+            <button type="button" className={styles.resourceBtn} onClick={() => setYtSearchFor(ytSearchFor === 'visual' ? null : 'visual')} title="Search YouTube" aria-label="Search YouTube">🔍</button>
             {openDropdown === 'ytId' && (
               <div className={`${styles.dropdown} ${dropdownUp ? styles.dropdownUp : ''}`} ref={dropdownRef}>
                 {resources.filter((r) => r.category === 'visual').length === 0 ? (
                   <span className={styles.dropdownEmpty}>No visual resources</span>
                 ) : (
                   resources.filter((r) => r.category === 'visual').map((r) => (
-                    <button key={r.id} className={styles.dropdownItem} onClick={() => pickResource(r.url)}>
+                    <button type="button" key={r.id} className={styles.dropdownItem} onClick={() => pickResource(r.url)}>
                       <span className={styles.dropdownName}>{r.name}</span>
                       <span className={styles.dropdownType}>visual</span>
                     </button>
@@ -177,7 +177,7 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
           <div className={styles.ytPopup} ref={ytSearchRef}>
             <div className={styles.ytSearchBar}>
               <input className={styles.ytSearchInput} value={ytQuery} onChange={(e) => setYtQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()} placeholder="Search YouTube..." />
-              <button className={styles.ytSearchBtn} onClick={handleYtSearch} disabled={ytSearching}>{ytSearching ? '…' : '🔍'}</button>
+              <button type="button" className={styles.ytSearchBtn} onClick={handleYtSearch} disabled={ytSearching} aria-label="Search YouTube">{ytSearching ? '…' : '🔍'}</button>
             </div>
             {ytResults.length > 0 && (
               <div className={styles.ytGrid}>
@@ -188,7 +188,7 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
                       <div className={styles.ytTitle}>{r.title}</div>
                       <div className={styles.ytMeta}>{r.channel}</div>
                     </div>
-                    <button className={styles.ytPickBtn} onClick={() => pickYtForVisual(r)} title="Use as visual">🎬</button>
+                    <button type="button" className={styles.ytPickBtn} onClick={() => pickYtForVisual(r)} title="Use as visual" aria-label="Use as visual">🎬</button>
                   </div>
                 ))}
               </div>
@@ -197,27 +197,27 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
         )}
       </div>
       <div className={styles.field}>
-        <label>Channels (Sounds)</label>
+        <span className={styles.label}>Channels (Sounds)</span>
         <div className={styles.channelList}>
           {sceneChannels.map((ch, i) => (
-            <div key={i} className={styles.channelRow}>
+            <div key={ch.id || `${ch.name}-${ch.url}` || i} className={styles.channelRow}>
               <span className={styles.channelName}>{ch.name}</span>
-              <span className={styles.channelUrl}>{ch.url.length > 35 ? ch.url.slice(0, 35) + '…' : ch.url}</span>
-              <button className={styles.chRemove} onClick={() => removeSceneChannel(i)}>✕</button>
+              <span className={styles.channelUrl}>{ch.url.length > 35 ? `${ch.url.slice(0, 35)}…` : ch.url}</span>
+              <button type="button" className={styles.chRemove} onClick={() => removeSceneChannel(i)} aria-label="Remove sound">✕</button>
             </div>
           ))}
         </div>
         <div className={styles.inputRow}>
           <input className={styles.input} value={newChName} onChange={(e) => setNewChName(e.target.value)} placeholder="Name" style={{ flex: 0.4 }} />
           <input className={styles.input} value={newChUrl} onChange={(e) => setNewChUrl(e.target.value)} placeholder="YouTube or audio URL" style={{ flex: 1 }} />
-          <button className={styles.resourceBtn} onClick={() => setYtSearchFor(ytSearchFor === 'channel' ? null : 'channel')} title="Search YouTube">🔍</button>
-          <button className={styles.addBtn} onClick={addChannelToScene}>+</button>
+          <button type="button" className={styles.resourceBtn} onClick={() => setYtSearchFor(ytSearchFor === 'channel' ? null : 'channel')} title="Search YouTube" aria-label="Search YouTube">🔍</button>
+          <button type="button" className={styles.addBtn} onClick={addChannelToScene} aria-label="Add sound">+</button>
         </div>
         {ytSearchFor === 'channel' && (
           <div className={styles.ytPopup} ref={ytSearchRef}>
             <div className={styles.ytSearchBar}>
               <input className={styles.ytSearchInput} value={ytQuery} onChange={(e) => setYtQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()} placeholder="Search YouTube..." />
-              <button className={styles.ytSearchBtn} onClick={handleYtSearch} disabled={ytSearching}>{ytSearching ? '…' : '🔍'}</button>
+              <button type="button" className={styles.ytSearchBtn} onClick={handleYtSearch} disabled={ytSearching} aria-label="Search YouTube">{ytSearching ? '…' : '🔍'}</button>
             </div>
             {ytResults.length > 0 && (
               <div className={styles.ytGrid}>
@@ -228,7 +228,7 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
                       <div className={styles.ytTitle}>{r.title}</div>
                       <div className={styles.ytMeta}>{r.channel}</div>
                     </div>
-                    <button className={styles.ytPickBtn} onClick={() => pickYtForChannel(r)} title="Fill channel">🎵</button>
+                    <button type="button" className={styles.ytPickBtn} onClick={() => pickYtForChannel(r)} title="Fill channel" aria-label="Fill channel">🎵</button>
                   </div>
                 ))}
               </div>
@@ -237,7 +237,7 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
         )}
       </div>
 
-      <button className={styles.btn} onClick={handleSave}>Save Scene</button>
+      <button type="button" className={styles.btn} onClick={handleSave}>Save Scene</button>
     </>
   );
 }
@@ -262,17 +262,24 @@ export function CocoonsTab({ scenes, onLoad, onDelete, onEdit }) {
           <p className={styles.empty}>{search ? 'No matches' : 'No cocoons saved yet.'}</p>
         ) : (
           filtered.map((s) => (
-            <div key={s.id} className={styles.listItem} onClick={() => onLoad(s)}>
+            <div key={s.id} className={styles.listItem}>
               <div className={styles.listItemTop}>
-                <span className={styles.listItemName}>{s.name}</span>
+                <button
+                  type="button"
+                  className={styles.loadBtn}
+                  onClick={() => onLoad(s)}
+                  aria-label={`Load ${s.name}`}
+                >
+                  <span className={styles.listItemName}>{s.name}</span>
+                  <div className={styles.listItemMeta}>
+                    <span>🎬 {s.visual.videoId}</span>
+                    <span>🔊 {(s.channels || []).length} sounds</span>
+                  </div>
+                </button>
                 <div className={styles.listActions}>
-                  <button className={styles.editBtn} onClick={(e) => { e.stopPropagation(); onEdit(s); }} title="Edit">✏️</button>
-                  <button className={styles.deleteBtn} onClick={(e) => { e.stopPropagation(); onDelete(s.id); }}>&times;</button>
+                  <button type="button" className={styles.editBtn} onClick={() => onEdit(s)} title="Edit" aria-label={`Edit ${s.name}`}>✏️</button>
+                  <button type="button" className={styles.deleteBtn} onClick={() => onDelete(s.id)} title="Delete" aria-label={`Delete ${s.name}`}>&times;</button>
                 </div>
-              </div>
-              <div className={styles.listItemMeta}>
-                <span>🎬 {s.visual.videoId}</span>
-                <span>🔊 {(s.channels || []).length} sounds</span>
               </div>
             </div>
           ))

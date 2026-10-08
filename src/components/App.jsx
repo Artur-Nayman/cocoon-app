@@ -1,12 +1,12 @@
-import styles from '../styles/App.module.css';
+import { useEffect } from 'react';
 import AppProvider from '../context/AppContext';
 import { useAppContext } from '../context/useAppContext';
+import styles from '../styles/App.module.css';
 import { resumeAudioContext } from '../utils/audioContext';
-
-import TitleBar from './TitleBar';
 import PlayerColumn from './PlayerColumn';
 import SideColumn from './SideColumn';
 import ThemeSwitcher from './ThemeSwitcher';
+import TitleBar from './TitleBar';
 
 function MainLayout() {
   const {
@@ -24,22 +24,29 @@ function MainLayout() {
     themeRef,
   } = useAppContext();
 
-  const handleFirstClick = () => {
-    if (!interacted) {
+  useEffect(() => {
+    if (interacted) return;
+    const handleInteraction = () => {
       resumeAudioContext();
       setInteracted(true);
-    }
-  };
+    };
+
+    window.addEventListener('pointerdown', handleInteraction, { once: true });
+    window.addEventListener('keydown', handleInteraction, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
+    };
+  }, [interacted, setInteracted]);
 
   return (
     <div
       className={`${styles.app} ${zenMode ? `${styles.zen} ${zenBgMode === 'transparent' ? styles.zenBgTransparent : ''}` : ''}`}
-      onClick={handleFirstClick}
     >
       {!zenMode && <TitleBar />}
       <PlayerColumn />
 
-      {!zenMode && <button className={styles.zenBtn} onClick={() => setZenMode(true)}>◻ Zen Mode</button>}
+      {!zenMode && <button type="button" className={styles.zenBtn} onClick={() => setZenMode(true)}>◻ Zen Mode</button>}
       {!zenMode && <SideColumn />}
 
       {backendStatus === 'down' && (
@@ -49,7 +56,7 @@ function MainLayout() {
       )}
 
       {!zenMode && (
-        <button className={styles.themeFloater} onClick={() => setShowTheme((v) => !v)} title="Theme">🎨</button>
+        <button type="button" className={styles.themeFloater} onClick={() => setShowTheme((v) => !v)} title="Theme" aria-label="Theme">🎨</button>
       )}
       {showTheme && (
         <div ref={themeRef}>

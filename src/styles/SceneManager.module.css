@@ -5,7 +5,8 @@
   margin-bottom: 0.8rem;
 }
 
-.field label {
+.field label,
+.field .label {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -369,12 +370,23 @@
   background: var(--bg-color);
   border-radius: 12px;
   padding: 0.7rem 0.9rem;
-  cursor: pointer;
   transition: background var(--transition);
 }
 
 .listItem:hover {
   background: var(--hover-bg);
+}
+
+.loadBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
 }
 
 .listItemTop {

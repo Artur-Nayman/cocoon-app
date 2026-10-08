@@ -1,7 +1,7 @@
-import { useState, useRef, useMemo, useCallback } from 'react';
-import { searchYouTube } from '../utils/youtubeSearch';
-import { logger } from '../utils/logger';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import styles from '../styles/ResourcesPanel.module.css';
+import { logger } from '../utils/logger';
+import { searchYouTube } from '../utils/youtubeSearch';
 
 const types = [
   { key: 'youtube', label: 'YouTube' },
@@ -93,13 +93,14 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
             placeholder="URL or paste link"
             style={{ flex: 1 }}
           />
-          <button className={styles.browseBtn} onClick={handleFileBrowse} title="Browse local file">📁</button>
+          <button type="button" className={styles.browseBtn} onClick={handleFileBrowse} title="Browse local file" aria-label="Browse local file">📁</button>
           <input ref={fileRef} type="file" accept="audio/*,video/*" style={{ display: 'none' }} onChange={handleFileChange} />
         </div>
         <div className={styles.groupLabel}>Format</div>
         <div className={styles.btnRow}>
           {types.map((t) => (
             <button
+              type="button"
               key={t.key}
               className={`${styles.pill} ${type === t.key ? styles.pillActive : ''}`}
               onClick={() => setType(t.key)}
@@ -112,6 +113,7 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
         <div className={styles.btnRow}>
           {categories.slice(1).map((c) => (
             <button
+              type="button"
               key={c.key}
               className={`${styles.pill} ${category === c.key ? styles.pillActive : ''}`}
               onClick={() => setCategory(c.key)}
@@ -120,11 +122,12 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
             </button>
           ))}
         </div>
-        <button className={styles.addBtn} onClick={handleAdd}>Add Resource</button>
+        <button type="button" className={styles.addBtn} onClick={handleAdd}>Add Resource</button>
       </div>
 
       <div className={styles.ytSection}>
         <button
+          type="button"
           className={styles.ytToggle}
           onClick={() => setShowYtSearch((v) => !v)}
         >
@@ -140,7 +143,7 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
                 onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()}
                 placeholder="Search YouTube..."
               />
-              <button className={styles.ytBtn} onClick={handleYtSearch} disabled={ytSearching}>
+              <button type="button" className={styles.ytBtn} onClick={handleYtSearch} disabled={ytSearching} aria-label="Search YouTube">
                 {ytSearching ? '…' : '🔍'}
               </button>
             </div>
@@ -153,7 +156,7 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
                       <div className={styles.ytTitle}>{r.title}</div>
                       <div className={styles.ytMeta}>{r.channel}</div>
                     </div>
-                    <button className={styles.ytSaveBtn} onClick={() => saveYtResult(r)} title="Save to Resources">💾</button>
+                    <button type="button" className={styles.ytSaveBtn} onClick={() => saveYtResult(r)} title="Save to Resources" aria-label="Save to Resources">💾</button>
                   </div>
                 ))}
               </div>
@@ -172,6 +175,7 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
         <div className={styles.filterRow}>
           {categories.map((c) => (
             <button
+              type="button"
               key={c.key}
               className={`${styles.filterPill} ${filterCat === c.key ? styles.filterPillActive : ''}`}
               onClick={() => setFilterCat(c.key)}
@@ -193,7 +197,7 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
                 <span className={`${styles.badge} ${styles[r.type]}`}>{r.type}</span>
                 <span className={`${styles.badge} ${styles[r.category] || styles.badgeCategory}`}>{r.category}</span>
               </div>
-              <button className={styles.deleteBtn} onClick={() => onDelete(r.id)}>&times;</button>
+              <button type="button" className={styles.deleteBtn} onClick={() => onDelete(r.id)} aria-label="Delete resource">&times;</button>
             </div>
           ))}
         </div>

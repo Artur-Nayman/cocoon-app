@@ -1,13 +1,13 @@
-import styles from '../styles/App.module.css';
-import { useAppContext } from '../context/useAppContext';
 import { tabs } from '../context/constants';
-import TabPanel from './TabPanel';
-import SoundBrowser from './SoundBrowser';
+import { useAppContext } from '../context/useAppContext';
+import styles from '../styles/App.module.css';
 import ChannelGrid from './ChannelGrid';
 import MixerPanel from './MixerPanel';
-import SleepTimer from './SleepTimer';
-import SceneManager from './SceneManager';
 import ResourcesPanel from './ResourcesPanel';
+import SceneManager from './SceneManager';
+import SleepTimer from './SleepTimer';
+import SoundBrowser from './SoundBrowser';
+import TabPanel from './TabPanel';
 
 export default function SideColumn() {
   const {
@@ -56,7 +56,7 @@ export default function SideColumn() {
               label={sleepTimer.label}
               onToggle={sleepTimer.toggle}
             />
-            <button className={styles.saveSceneBtn} onClick={saveCurrentAsScene}>
+            <button type="button" className={styles.saveSceneBtn} onClick={saveCurrentAsScene}>
               💾 Save Current Mix
             </button>
           </div>

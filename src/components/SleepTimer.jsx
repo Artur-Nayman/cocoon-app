@@ -14,6 +14,7 @@ export default function SleepTimer({ minutes, label, onToggle }) {
       <div className={styles.options}>
         {OPTIONS.map((opt) => (
           <button
+            type="button"
             key={opt.min}
             className={`${styles.pill} ${minutes === opt.min ? styles.active : ''}`}
             onClick={() => onToggle(opt.min)}

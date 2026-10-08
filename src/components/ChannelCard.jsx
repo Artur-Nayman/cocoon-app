@@ -1,12 +1,12 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { useAudioLayer } from '../hooks/useAudioLayer';
-import { logger } from '../utils/logger';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BACKEND_URL } from '../config';
 import { CHANNEL_COLORS, CHANNEL_ICONS } from '../constants/defaults';
+import { useAudioLayer } from '../hooks/useAudioLayer';
 import styles from '../styles/ChannelGrid.module.css';
+import { logger } from '../utils/logger';
 
 function formatTime(s) {
-  if (s == null || isNaN(s)) return '0:00';
+  if (s == null || Number.isNaN(s)) return '0:00';
   const m = Math.floor(s / 60);
   const sec = Math.floor(s % 60);
   return `${m}:${sec.toString().padStart(2, '0')}`;
@@ -120,9 +120,17 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
       className={`${styles.card} ${isActive ? styles.cardActive : ''} ${expanded ? styles.expanded : ''}`}
       style={{ '--channel-color': color }}
     >
-      <div className={styles.pill} ref={pillRef} onClick={handleClick} onContextMenu={handleContext}>
+      <button
+        type="button"
+        className={styles.pill}
+        ref={pillRef}
+        onClick={handleClick}
+        onContextMenu={handleContext}
+        aria-expanded={expanded}
+      >
         <div className={styles.iconBox}>
-          <svg className={styles.volumeSvg} viewBox="0 0 40 40" width="36" height="36">
+          <svg className={styles.volumeSvg} viewBox="0 0 40 40" width="36" height="36" aria-hidden="true">
+            <title>{name ? `${name} volume indicator` : 'Volume indicator'}</title>
             <rect
               x="3" y="3" width="34" height="34" rx="8"
               fill={isActive ? color : 'transparent'}
@@ -137,15 +145,17 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
           <span className={styles.icon}>{CHANNEL_ICONS[category] || '🔊'}</span>
         </div>
         <span className={styles.name}>{name}</span>
-      </div>
+      </button>
 
       {expanded && (
-        <div className={styles.detail} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.detail}>
           <div className={styles.detailRow}>
             <button
+              type="button"
               className={styles.playBtn}
               onClick={() => onToggle(id)}
               title={playing ? 'Pause' : 'Play'}
+              aria-label={playing ? 'Pause' : 'Play'}
             >{playing ? '⏸' : '▶️'}</button>
             <input
               className={styles.detailSlider}
@@ -154,7 +164,7 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
               onChange={(e) => onVolume(id, Number(e.target.value))}
             />
             <span className={styles.detailVol}>{pct}%</span>
-            <button className={styles.detailAction} onClick={handleRandom} title="Random position">🎲</button>
+            <button type="button" className={styles.detailAction} onClick={handleRandom} title="Random position" aria-label="Random position">🎲</button>
           </div>
           {showSeek && (
             <div className={styles.detailRow}>
@@ -168,6 +178,7 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
             </div>
           )}
           <button
+            type="button"
             className={styles.deleteBtn}
             onClick={() => onRemove(id)}
           >✕ Remove</button>

@@ -201,6 +201,10 @@
   cursor: pointer;
   transition: all 0.2s;
   min-height: 70px;
+  font: inherit;
+  color: inherit;
+  width: 100%;
+  text-align: center;
 }
 
 .soundCard:hover {

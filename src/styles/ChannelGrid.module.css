@@ -41,6 +41,12 @@
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  width: 100%;
+  text-align: left;
 }
 
 .cardActive {

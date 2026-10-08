@@ -6,6 +6,7 @@ export default function TabPanel({ tabs, activeTab, onTabChange, children }) {
       <div className={tabStyles.bar}>
         {tabs.map((tab) => (
           <button
+            type="button"
             key={tab.key}
             className={`${tabStyles.tab} ${activeTab === tab.key ? tabStyles.active : ''}`}
             onClick={() => onTabChange(tab.key)}

@@ -1,7 +1,7 @@
-import styles from '../styles/App.module.css';
 import { useAppContext } from '../context/useAppContext';
-import VisualLayer from './VisualLayer';
+import styles from '../styles/App.module.css';
 import ChannelGrid from './ChannelGrid';
+import VisualLayer from './VisualLayer';
 
 export default function PlayerColumn() {
   const {
@@ -29,10 +29,10 @@ export default function PlayerColumn() {
       <div className={styles.playerCard}>
         {zenMode ? (
           <div className={styles.zenToolbar}>
-            <button className={styles.zenToolBtn} onClick={() => setShowTheme(true)} title="Theme">🎨</button>
-            <button className={styles.zenToolBtn} onClick={() => setZenMode(false)} title="Exit Zen">⬅</button>
-            {window.electronAPI && (
-              <button className={styles.zenToolBtn} onClick={() => window.electronAPI.close()} title="Close">✕</button>
+            <button type="button" className={styles.zenToolBtn} onClick={() => setShowTheme(true)} title="Theme" aria-label="Theme">🎨</button>
+            <button type="button" className={styles.zenToolBtn} onClick={() => setZenMode(false)} title="Exit Zen" aria-label="Exit Zen">⬅</button>
+            {window.electronAPI?.close && (
+              <button type="button" className={styles.zenToolBtn} onClick={() => window.electronAPI.close()} title="Close" aria-label="Close">✕</button>
             )}
           </div>
         ) : (
@@ -78,11 +78,11 @@ export default function PlayerColumn() {
 
         <div className={styles.masterRow}>
           <div className={styles.masterControls}>
-            <button className={styles.controlBtn} onClick={handlePrev} title="Previous scene" disabled={scenes.length < 2}>⏮</button>
-            <button className={styles.controlBtn} onClick={handleToggleAll} title="Pause / Play all">
+            <button type="button" className={styles.controlBtn} onClick={handlePrev} title="Previous scene" disabled={scenes.length < 2}>⏮</button>
+            <button type="button" className={styles.controlBtn} onClick={handleToggleAll} title="Pause / Play all">
               {allPlaying ? '⏸' : '▶️'}
             </button>
-            <button className={styles.controlBtn} onClick={handleNext} title="Next scene" disabled={scenes.length < 2}>⏭</button>
+            <button type="button" className={styles.controlBtn} onClick={handleNext} title="Next scene" disabled={scenes.length < 2}>⏭</button>
           </div>
           <span className={styles.masterPct}>{masterVolume}%</span>
           <input

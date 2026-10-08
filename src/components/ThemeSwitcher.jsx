@@ -28,12 +28,13 @@ export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showM
     <div className={styles.themePopup}>
       <div className={styles.themeHeader}>
         <span>Theme</span>
-        <button className={styles.themeClose} onClick={onClose}>&times;</button>
+        <button type="button" className={styles.themeClose} onClick={onClose} aria-label="Close">&times;</button>
       </div>
 
       <div className={styles.themeGrid}>
         {THEMES.map((t) => (
           <button
+            type="button"
             key={t.key}
             className={`${styles.themeSwatch} ${theme === t.key ? styles.themeSwatchActive : ''}`}
             style={{ '--swatch-color': t.color }}
@@ -50,6 +51,7 @@ export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showM
         <div className={styles.themePills}>
           {['color', 'image', 'animation'].map((tab) => (
             <button
+              type="button"
               key={tab}
               className={`${styles.themePill} ${customTab === tab ? styles.themePillActive : ''}`}
               onClick={() => setCustomTab(tab)}
@@ -69,6 +71,7 @@ export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showM
             />
             <span className={styles.themeColorValue}>{bgType === 'color' ? bgValue : ''}</span>
             <button
+              type="button"
               className={styles.themeClearBtn}
               onClick={() => { onBgTypeChange(''); onBgValueChange(''); }}
             >
@@ -96,6 +99,7 @@ export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showM
           <div className={styles.themeAnimRow}>
             {ANIMATIONS.map((a) => (
               <button
+                type="button"
                 key={a.key}
                 className={`${styles.themeAnimPill} ${bgType === 'animation' && bgValue === a.key ? styles.themeAnimPillActive : ''}`}
                 onClick={() => {
@@ -118,6 +122,7 @@ export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showM
       <div className={styles.themeSection}>
         <span className={styles.themeSectionLabel}>Visual</span>
         <button
+          type="button"
           className={`${styles.themePill} ${showVinyl ? styles.themePillActive : ''}`}
           onClick={() => onVinylToggle(!showVinyl)}
           style={{ flex: 'none', width: '100%', padding: '0.5rem' }}
@@ -126,6 +131,7 @@ export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showM
         </button>
         {showVinyl && (
           <button
+            type="button"
             className={`${styles.themePill} ${showMusicName ? styles.themePillActive : ''}`}
             onClick={() => onMusicNameToggle(!showMusicName)}
             style={{ flex: 'none', width: '100%', padding: '0.5rem' }}
@@ -139,12 +145,14 @@ export default function ThemeSwitcher({ theme, bgType, bgValue, showVinyl, showM
         <span className={styles.themeSectionLabel}>Zen Background</span>
         <div className={styles.themePills}>
           <button
+            type="button"
             className={`${styles.themePill} ${zenBgMode === 'dark' ? styles.themePillActive : ''}`}
             onClick={() => onZenBgChange('dark')}
           >
             Dark
           </button>
           <button
+            type="button"
             className={`${styles.themePill} ${zenBgMode === 'transparent' ? styles.themePillActive : ''}`}
             onClick={() => onZenBgChange('transparent')}
           >
