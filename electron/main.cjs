@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = !app.isPackaged && process.env.NODE_ENV === 'development';
 
 let mainWindow;
 let savedBounds = null;
@@ -18,11 +18,15 @@ function createWindow() {
   });
 
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL || 'http://localhost:3000');
     mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
+
+  mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
+    console.error(`Failed to load index.html (${errorCode}): ${errorDescription}`);
+  });
 
   mainWindow.on('maximize', () => {
     mainWindow?.webContents.send('window-maximized-change', true);
