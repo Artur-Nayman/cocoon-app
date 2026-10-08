@@ -6,6 +6,7 @@
   "author": "Cocoon <cocoon@localhost>",
   "type": "module",
   "main": "electron/main.cjs",
+  "desktopName": "cocoon-app.desktop",
   "scripts": {
     "dev": "vite",
     "start": "concurrently -n server,front -c cyan,green \"npm run start:server\" \"npm run dev\"",
@@ -31,10 +32,11 @@
     ],
     "linux": {
       "target": [
-        "AppImage"
+        "tar.gz"
       ],
       "category": "AudioVideo",
-      "icon": "build/icons"
+      "icon": "build/icons",
+      "syncDesktopName": true
     },
     "win": {
       "target": [
@@ -54,7 +56,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "concurrently": "^9.2.1",
-    "electron": "^37.0.3",
+    "electron": "^44.7.0",
     "electron-builder": "^26.0.12",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
