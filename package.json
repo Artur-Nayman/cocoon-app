@@ -9,6 +9,7 @@
   "desktopName": "cocoon-app.desktop",
   "scripts": {
     "dev": "vite",
+    "test": "vitest run",
     "start": "concurrently -n server,front -c cyan,green \"npm run start:server\" \"npm run dev\"",
     "start:server": "cd server && npm start",
     "build": "vite build",
