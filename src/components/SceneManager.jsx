@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { extractYtId } from '../utils/youtube';
 import { searchYouTube } from '../utils/youtubeSearch';
+import { logger } from '../utils/logger';
 import styles from '../styles/SceneManager.module.css';
 
 function typeFromUrl(url) {
@@ -139,7 +140,7 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
     try {
       setYtResults(await searchYouTube(ytQuery));
     } catch (err) {
-      console.warn('YouTube search failed:', err);
+      logger.warn('YouTube search failed:', err);
     }
     setYtSearching(false);
   }, [ytQuery]);
