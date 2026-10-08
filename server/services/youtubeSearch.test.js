@@ -8,47 +8,68 @@ vi.mock('child_process', () => ({
 
 describe('searchYouTube', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
-  it('should ignore JSON parse errors in individual lines', () => {
-    // Mock execSync to return a mix of valid and invalid JSON
-    execSync.mockReturnValue(`{"id": "valid1", "title": "First Valid"}
-INVALID_JSON
-{"id": "valid2", "title": "Second Valid"}`);
-
-    const results = searchYouTube('test query', 2);
-
-    expect(results).toHaveLength(2);
-    expect(results[0].id).toBe('valid1');
-    expect(results[1].id).toBe('valid2');
-  });
-
-  it('should return an empty array if output is empty', () => {
-    execSync.mockReturnValue('');
-
-    const results = searchYouTube('empty output query');
-
-    expect(results).toHaveLength(0);
-    expect(results).toEqual([]);
-  });
-
-  it('should handle execSync throwing an error', () => {
-    // Mock execSync to throw an error
+  it('should return empty array when execSync throws an error', () => {
     execSync.mockImplementation(() => {
       throw new Error('Command failed');
     });
 
-    // Suppress console.warn for this test to keep output clean
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const result = searchYouTube('test query');
 
-    const results = searchYouTube('error query');
+    expect(execSync).toHaveBeenCalled();
+    expect(result).toEqual([]);
+    expect(console.warn).toHaveBeenCalledWith(
+      '[youtubeSearch] yt-dlp search failed:',
+      'Command failed'
+    );
+  });
 
-    expect(results).toHaveLength(0);
-    expect(results).toEqual([]);
+  it('should parse yt-dlp output successfully', () => {
+    const mockOutput = JSON.stringify({
+      id: '123',
+      title: 'Test Video',
+      webpage_url: 'https://youtu.be/123',
+      thumbnail: 'thumb.jpg',
+      duration: 100,
+      channel: 'Test Channel',
+      description: 'Test Desc'
+    }) + '\n';
 
-    expect(consoleSpy).toHaveBeenCalledWith('[youtubeSearch] yt-dlp search failed:', 'Command failed');
+    execSync.mockReturnValue(mockOutput);
 
-    consoleSpy.mockRestore();
+    const result = searchYouTube('test query');
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toEqual({
+      id: '123',
+      title: 'Test Video',
+      url: 'https://youtu.be/123',
+      thumbnail: 'thumb.jpg',
+      duration: 100,
+      channel: 'Test Channel',
+      description: 'Test Desc'
+    });
+  });
+
+  it('should return empty array if output is empty', () => {
+    execSync.mockReturnValue('');
+    const result = searchYouTube('test query');
+    expect(result).toEqual([]);
+  });
+
+  it('should skip items that fail to parse as JSON', () => {
+    const mockOutput = JSON.stringify({
+      id: '123',
+      title: 'Test Video'
+    }) + '\ninvalid json\n';
+
+    execSync.mockReturnValue(mockOutput);
+
+    const result = searchYouTube('test query');
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('123');
   });
 });

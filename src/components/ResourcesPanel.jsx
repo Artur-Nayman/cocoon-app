@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo, useCallback } from 'react';
 import { searchYouTube } from '../utils/youtubeSearch';
+import { logger } from '../utils/logger';
 import styles from '../styles/ResourcesPanel.module.css';
 
 const types = [
@@ -63,7 +64,7 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
     try {
       setYtResults(await searchYouTube(ytQuery));
     } catch (err) {
-      console.warn('YouTube search failed:', err);
+      logger.warn('YouTube search failed:', err);
     }
     setYtSearching(false);
   }, [ytQuery]);
