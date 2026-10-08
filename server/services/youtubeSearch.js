@@ -11,11 +11,12 @@ function parseDuration(timeStr) {
 export async function searchYouTube(query, maxResults = 10) {
   const safeQuery = query.replace(/"/g, '\\"');
   const jsRuntime = process.env.YT_DLP_JS || '--js-runtimes node';
+  const bin = process.env.YT_DLP_PATH || 'yt-dlp';
 
   // 1. Try yt-dlp first if available
   try {
-    const cmd = `yt-dlp ${jsRuntime} --flat-playlist --dump-json "ytsearch${maxResults}:${safeQuery}" 2>/dev/null`;
-    const output = execSync(cmd, { timeout: 30000, encoding: 'utf-8' }).trim();
+    const cmd = `"${bin}" ${jsRuntime} --flat-playlist --dump-json "ytsearch${maxResults}:${safeQuery}"`;
+    const output = execSync(cmd, { timeout: 30000, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
     if (output) {
       const lines = output.trim().split('\n').filter(Boolean);
       const results = lines.map((line) => {

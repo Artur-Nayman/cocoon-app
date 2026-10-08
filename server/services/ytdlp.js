@@ -15,11 +15,12 @@ export async function extractAudioUrl(youtubeUrl) {
   ];
 
   const jsRuntime = process.env.YT_DLP_JS || '--js-runtimes node';
+  const bin = process.env.YT_DLP_PATH || 'yt-dlp';
 
   for (const flags of strategies) {
     try {
-      const cmd = `yt-dlp ${jsRuntime} ${flags} "${youtubeUrl}" 2>/dev/null`;
-      const output = execSync(cmd, { timeout: 30000, encoding: 'utf-8' }).trim();
+      const cmd = `"${bin}" ${jsRuntime} ${flags} "${youtubeUrl}"`;
+      const output = execSync(cmd, { timeout: 30000, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
       const lines = output.split('\n').filter(Boolean);
       const url = lines[0];
       if (url && url.startsWith('http')) return url;

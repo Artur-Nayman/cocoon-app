@@ -1,9 +1,39 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('node:path');
-const isDev = !app.isPackaged && process.env.NODE_ENV === 'development';
+const { pathToFileURL } = require('node:url');
+const isDev = !app.isPackaged;
 
 let mainWindow;
 let savedBounds = null;
+let appOrigin = 'http://localhost:3000';
+
+// Start the bundled Express server (serves dist + /api) on an OS-assigned port.
+async function startBackend() {
+  process.env.NODE_ENV = 'production';
+  process.env.PORT = '0';
+  if (app.isPackaged) {
+    process.env.YT_DLP_PATH = path.join(
+      process.resourcesPath,
+      process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp'
+    );
+  }
+  const { startServer } = await import(pathToFileURL(path.join(__dirname, '../server.js')).href);
+  const server = await startServer();
+  return server.address().port;
+}
+
+// YouTube's IFrame API rejects embeds whose requests carry no Referer (Error 153).
+function installRefererFix() {
+  session.defaultSession.webRequest.onBeforeSendHeaders(
+    { urls: ['*://*.youtube.com/*', '*://*.youtube-nocookie.com/*'] },
+    (details, callback) => {
+      if (!details.requestHeaders.Referer) {
+        details.requestHeaders.Referer = `${appOrigin}/`;
+      }
+      callback({ requestHeaders: details.requestHeaders });
+    }
+  );
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -18,14 +48,15 @@ function createWindow() {
   });
 
   if (isDev) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL || 'http://localhost:3000');
+    appOrigin = process.env.VITE_DEV_SERVER_URL || 'http://localhost:3000';
+    mainWindow.loadURL(appOrigin);
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    mainWindow.loadURL(appOrigin);
   }
 
   mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
-    console.error(`Failed to load index.html (${errorCode}): ${errorDescription}`);
+    console.error(`Failed to load ${appOrigin} (${errorCode}): ${errorDescription}`);
   });
 
   mainWindow.on('maximize', () => {
@@ -79,7 +110,12 @@ ipcMain.on('window-set-always-on-top', (_event, flag) => {
   mainWindow?.setAlwaysOnTop(Boolean(flag));
 });
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  if (!isDev) {
+    const port = await startBackend();
+    appOrigin = `http://127.0.0.1:${port}`;
+  }
+  installRefererFix();
   createWindow();
 
   app.on('activate', () => {

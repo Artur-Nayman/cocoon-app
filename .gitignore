@@ -6,3 +6,5 @@ server/node_modules
 .DS_Store
 /plasmoid
 release
+
+vendor

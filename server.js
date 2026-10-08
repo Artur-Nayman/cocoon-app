@@ -1,15 +1,16 @@
 import express from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import audioRoutes from './server/routes/audio.js';
 import youtubeRoutes from './server/routes/youtube.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function startServer() {
+export async function startServer() {
   const app = express();
-  const PORT = parseInt(process.env.PORT, 10) || 3000;
+  // Use PORT when defined so PORT=0 (OS-assigned ephemeral port) works.
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   app.use(express.json());
 
@@ -41,9 +42,15 @@ async function startServer() {
     app.use(vite.middlewares);
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Cocoon server listening on http://0.0.0.0:${PORT}`);
+  return new Promise((resolve) => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Cocoon server listening on http://0.0.0.0:${server.address().port}`);
+      resolve(server);
+    });
   });
 }
 
-startServer();
+// Self-run when executed directly (npm run dev / npm start); Electron imports startServer().
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  startServer();
+}

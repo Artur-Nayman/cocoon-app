@@ -13,9 +13,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "electron:dev": "electron electron/main.cjs",
-    "electron:build:win": "vite build && electron-builder --win",
-    "electron:build:linux": "vite build && electron-builder --linux",
-    "electron:build:all": "vite build && electron-builder --linux --win"
+    "electron:build:win": "node scripts/fetch-ytdlp.mjs win && vite build && electron-builder --win",
+    "electron:build:linux": "node scripts/fetch-ytdlp.mjs linux && vite build && electron-builder --linux",
+    "electron:build:all": "node scripts/fetch-ytdlp.mjs all && vite build && electron-builder --linux --win"
   },
   "build": {
     "appId": "com.cocoon.app",
@@ -26,7 +26,19 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
+      "server.js",
+      "server/routes/**/*",
+      "server/services/**/*",
       "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor",
+        "to": ".",
+        "filter": [
+          "yt-dlp*"
+        ]
+      }
     ],
     "linux": {
       "target": [
