@@ -10,7 +10,7 @@ router.get('/extract', async (req, res) => {
   }
 
   try {
-    const audioUrl = await extractAudioUrl(url);
+    const audioUrl = extractAudioUrl(url);
     if (!audioUrl) {
       return res.status(404).json({ success: false, error: 'Could not extract audio URL' });
     }
@@ -27,7 +27,7 @@ router.post('/extract', async (req, res) => {
   }
 
   try {
-    const audioUrl = await extractAudioUrl(url);
+    const audioUrl = extractAudioUrl(url);
     if (!audioUrl) {
       return res.status(404).json({ success: false, error: 'Could not extract audio URL' });
     }
