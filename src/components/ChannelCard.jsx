@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useAudioLayer } from '../hooks/useAudioLayer';
-import { logger } from '../utils/logger';
 import { BACKEND_URL } from '../config';
 import { CHANNEL_COLORS, CHANNEL_ICONS } from '../constants/defaults';
 import styles from '../styles/ChannelGrid.module.css';
@@ -38,20 +37,20 @@ export default function ChannelCard({ channel, masterVolume, onToggle, onVolume,
     };
 
     if (type === 'youtube') {
-      logger.debug('[ChannelCard] fetching audio for:', url);
+      console.log('[ChannelCard] fetching audio for:', url);
       fetch(`${BACKEND_URL}/api/audio/extract?url=${encodeURIComponent(url)}`)
         .then((r) => r.json())
         .then((data) => {
           if (data.success && data.audioUrl) {
-            logger.debug('[ChannelCard] got audio URL, loading...');
+            console.log('[ChannelCard] got audio URL, loading...');
             doLoad(data.audioUrl);
           } else {
-            logger.warn('[ChannelCard] backend returned no audioUrl:', data);
+            console.warn('[ChannelCard] backend returned no audioUrl:', data);
             if (onBackendStatus) onBackendStatus('down');
           }
         })
         .catch((err) => {
-          logger.warn('[ChannelCard] fetch audio failed:', err.message);
+          console.warn('[ChannelCard] fetch audio failed:', err.message);
           if (onBackendStatus) onBackendStatus('down');
         });
     } else {
