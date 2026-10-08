@@ -24,64 +24,6 @@ function initFromProps(editingScene, currentConfig) {
   };
 }
 
-function YtSearchPopup({
-  ytSearchRef,
-  ytQuery,
-  setYtQuery,
-  handleYtSearch,
-  ytSearching,
-  ytResults,
-  onPick,
-  pickTitle,
-  pickIcon,
-}) {
-  return (
-    <div className={styles.ytPopup} ref={ytSearchRef}>
-      <div className={styles.ytSearchBar}>
-        <input
-          className={styles.ytSearchInput}
-          value={ytQuery}
-          onChange={(e) => setYtQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()}
-          placeholder="Search YouTube..."
-        />
-        <button
-          className={styles.ytSearchBtn}
-          onClick={handleYtSearch}
-          disabled={ytSearching}
-        >
-          {ytSearching ? '…' : '🔍'}
-        </button>
-      </div>
-      {ytResults.length > 0 && (
-        <div className={styles.ytGrid}>
-          {ytResults.map((r) => (
-            <div key={r.id} className={styles.ytCard}>
-              <img
-                className={styles.ytThumb}
-                src={r.thumbnail}
-                alt={r.title}
-                loading="lazy"
-              />
-              <div className={styles.ytInfo}>
-                <div className={styles.ytTitle}>{r.title}</div>
-                <div className={styles.ytMeta}>{r.channel}</div>
-              </div>
-              <button
-                className={styles.ytPickBtn}
-                onClick={() => onPick(r)}
-                title={pickTitle}
-              >
-                {pickIcon}
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function SceneManager({ onSave, currentConfig, resources, editingScene, onEditDone }) {
   const init = initFromProps(editingScene, currentConfig);
   const [name, setName] = useState(init.name);
@@ -232,17 +174,26 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
           </div>
         </div>
         {ytSearchFor === 'visual' && (
-          <YtSearchPopup
-            ytSearchRef={ytSearchRef}
-            ytQuery={ytQuery}
-            setYtQuery={setYtQuery}
-            handleYtSearch={handleYtSearch}
-            ytSearching={ytSearching}
-            ytResults={ytResults}
-            onPick={pickYtForVisual}
-            pickTitle="Use as visual"
-            pickIcon="🎬"
-          />
+          <div className={styles.ytPopup} ref={ytSearchRef}>
+            <div className={styles.ytSearchBar}>
+              <input className={styles.ytSearchInput} value={ytQuery} onChange={(e) => setYtQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()} placeholder="Search YouTube..." />
+              <button className={styles.ytSearchBtn} onClick={handleYtSearch} disabled={ytSearching}>{ytSearching ? '…' : '🔍'}</button>
+            </div>
+            {ytResults.length > 0 && (
+              <div className={styles.ytGrid}>
+                {ytResults.map((r) => (
+                  <div key={r.id} className={styles.ytCard}>
+                    <img className={styles.ytThumb} src={r.thumbnail} alt={r.title} loading="lazy" />
+                    <div className={styles.ytInfo}>
+                      <div className={styles.ytTitle}>{r.title}</div>
+                      <div className={styles.ytMeta}>{r.channel}</div>
+                    </div>
+                    <button className={styles.ytPickBtn} onClick={() => pickYtForVisual(r)} title="Use as visual">🎬</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
       <div className={styles.field}>
@@ -263,17 +214,26 @@ export default function SceneManager({ onSave, currentConfig, resources, editing
           <button className={styles.addBtn} onClick={addChannelToScene}>+</button>
         </div>
         {ytSearchFor === 'channel' && (
-          <YtSearchPopup
-            ytSearchRef={ytSearchRef}
-            ytQuery={ytQuery}
-            setYtQuery={setYtQuery}
-            handleYtSearch={handleYtSearch}
-            ytSearching={ytSearching}
-            ytResults={ytResults}
-            onPick={pickYtForChannel}
-            pickTitle="Fill channel"
-            pickIcon="🎵"
-          />
+          <div className={styles.ytPopup} ref={ytSearchRef}>
+            <div className={styles.ytSearchBar}>
+              <input className={styles.ytSearchInput} value={ytQuery} onChange={(e) => setYtQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()} placeholder="Search YouTube..." />
+              <button className={styles.ytSearchBtn} onClick={handleYtSearch} disabled={ytSearching}>{ytSearching ? '…' : '🔍'}</button>
+            </div>
+            {ytResults.length > 0 && (
+              <div className={styles.ytGrid}>
+                {ytResults.map((r) => (
+                  <div key={r.id} className={styles.ytCard}>
+                    <img className={styles.ytThumb} src={r.thumbnail} alt={r.title} loading="lazy" />
+                    <div className={styles.ytInfo}>
+                      <div className={styles.ytTitle}>{r.title}</div>
+                      <div className={styles.ytMeta}>{r.channel}</div>
+                    </div>
+                    <button className={styles.ytPickBtn} onClick={() => pickYtForChannel(r)} title="Fill channel">🎵</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
