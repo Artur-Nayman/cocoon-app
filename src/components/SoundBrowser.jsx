@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { DEFAULT_BUILTIN_SOUNDS, CHANNEL_CATEGORIES } from '../constants/defaults';
 import { searchYouTube } from '../utils/youtubeSearch';
-import { logger } from '../utils/logger';
 import styles from '../styles/SoundBrowser.module.css';
 
 export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource }) {
@@ -18,7 +17,7 @@ export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource
     try {
       setSearchResults(await searchYouTube(ytQuery));
     } catch (err) {
-      logger.warn('YouTube search failed:', err);
+      console.warn('YouTube search failed:', err);
     }
     setSearching(false);
   }, [ytQuery]);
