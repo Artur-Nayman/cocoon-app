@@ -5,7 +5,7 @@ describe('audioContext', () => {
 
   beforeEach(() => {
     resumeMock = vi.fn();
-    global.AudioContext = class {
+    globalThis.AudioContext = class {
       constructor() {
         this.state = 'suspended';
         this.resume = resumeMock;
@@ -21,14 +21,13 @@ describe('audioContext', () => {
   describe('resumeAudioContext', () => {
     it('should not throw if context is not initialized', async () => {
       // we need to run resumeAudioContext without calling getAudioContext first
-      // wait for vitest dynamic import cache isolation
-      const module = await import('./audioContext.js?skip=' + Math.random());
+      const module = await import('./audioContext.js');
       expect(() => module.resumeAudioContext()).not.toThrow();
     });
 
     it('should call resume if state is suspended', async () => {
-      const module = await import('./audioContext.js?skip=' + Math.random());
-      const ctx = module.getAudioContext();
+      const module = await import('./audioContext.js');
+      module.getAudioContext();
 
       module.resumeAudioContext();
 
@@ -36,7 +35,7 @@ describe('audioContext', () => {
     });
 
     it('should not call resume if state is running', async () => {
-      const module = await import('./audioContext.js?skip=' + Math.random());
+      const module = await import('./audioContext.js');
 
       const ctx = module.getAudioContext();
       expect(resumeMock).toHaveBeenCalledTimes(1); // getAudioContext calls it because state is 'suspended' in mock initially
