@@ -131,34 +131,17 @@ export default function ResourcesPanel({ resources, onAdd, onDelete }) {
           {showYtSearch ? '▼ Hide' : '▶'} YouTube Search
         </button>
         {showYtSearch && (
-          <div className={styles.ytSearch}>
-            <div className={styles.searchBar}>
-              <input
-                className={styles.ytInput}
-                value={ytQuery}
-                onChange={(e) => setYtQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleYtSearch()}
-                placeholder="Search YouTube..."
-              />
-              <button className={styles.ytBtn} onClick={handleYtSearch} disabled={ytSearching}>
-                {ytSearching ? '…' : '🔍'}
-              </button>
-            </div>
-            {ytResults.length > 0 && (
-              <div className={styles.ytGrid}>
-                {ytResults.map((r) => (
-                  <div key={r.id} className={styles.ytCard}>
-                    <img className={styles.ytThumb} src={r.thumbnail} alt={r.title} loading="lazy" />
-                    <div className={styles.ytInfo}>
-                      <div className={styles.ytTitle}>{r.title}</div>
-                      <div className={styles.ytMeta}>{r.channel}</div>
-                    </div>
-                    <button className={styles.ytSaveBtn} onClick={() => saveYtResult(r)} title="Save to Resources">💾</button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <YouTubeSearchPopup
+            className={styles.ytSearch}
+            ytQuery={ytQuery}
+            setYtQuery={setYtQuery}
+            handleYtSearch={handleYtSearch}
+            ytSearching={ytSearching}
+            ytResults={ytResults}
+            onPick={saveYtResult}
+            actionIcon="💾"
+            actionTitle="Save to Resources"
+          />
         )}
       </div>
 
