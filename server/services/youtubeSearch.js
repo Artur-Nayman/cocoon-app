@@ -22,7 +22,7 @@ export function searchYouTube(query, maxResults = 10) {
     }).trim();
     if (!output) return [];
 
-    const lines = output.split('\n').filter(Boolean);
+    const lines = output.trim().split('\n').filter(Boolean);
     return lines.map((line) => {
       try {
         const item = JSON.parse(line);
