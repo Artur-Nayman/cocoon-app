@@ -9,12 +9,10 @@
   "desktopName": "cocoon-app.desktop",
   "scripts": {
     "dev": "vite",
-    "test": "vitest run",
     "start": "concurrently -n server,front -c cyan,green \"npm run start:server\" \"npm run dev\"",
     "start:server": "cd server && npm start",
     "build": "vite build",
     "lint": "eslint .",
-    "test": "vitest",
     "preview": "vite preview",
     "electron:dev": "NODE_ENV=development electron . --dev",
     "electron:build:linux": "npm run build && electron-builder --linux",
@@ -67,6 +65,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "jsdom": "^29.1.1",
     "vite": "^8.0.12",
     "vitest": "^5.0.3"
   }
