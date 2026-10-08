@@ -1,15 +1,18 @@
-import { execSync } from 'child_process';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
-export function searchYouTube(query, maxResults = 10) {
+const execAsync = promisify(exec);
+
+export async function searchYouTube(query, maxResults = 10) {
   const safeQuery = query.replace(/"/g, '\\"');
   const jsRuntime = process.env.YT_DLP_JS || '--js-runtimes node';
 
   try {
     const cmd = `yt-dlp ${jsRuntime} --flat-playlist --dump-json "ytsearch${maxResults}:${safeQuery}" 2>/dev/null`;
-    const output = execSync(cmd, { timeout: 30000, encoding: 'utf-8' }).trim();
+    const { stdout: output } = await execAsync(cmd, { timeout: 30000, encoding: 'utf-8' });
     if (!output) return [];
 
-    const lines = output.split('\n').filter(Boolean);
+    const lines = output.trim().split('\n').filter(Boolean);
     return lines.map((line) => {
       try {
         const item = JSON.parse(line);
