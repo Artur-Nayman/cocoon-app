@@ -9,16 +9,18 @@
   "desktopName": "cocoon-app.desktop",
   "scripts": {
     "dev": "vite",
+    "test": "vitest run",
     "start": "concurrently -n server,front -c cyan,green \"npm run start:server\" \"npm run dev\"",
     "start:server": "cd server && npm start",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "vitest",
     "preview": "vite preview",
     "electron:dev": "NODE_ENV=development electron . --dev",
     "electron:build:linux": "npm run build && electron-builder --linux",
     "electron:build:win": "npm run build && electron-builder --win",
     "electron:build:all": "npm run build && electron-builder --linux --win",
-    "test": "cd server && vitest run"
+    "test": "vitest run"
   },
   "build": {
     "appId": "com.cocoon.app",
