@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { DEFAULT_BUILTIN_SOUNDS, CHANNEL_CATEGORIES } from '../constants/defaults';
 import { searchYouTube } from '../utils/youtubeSearch';
-import { logger } from '../utils/logger';
 import styles from '../styles/SoundBrowser.module.css';
 
 export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource }) {
@@ -12,34 +11,13 @@ export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource
   const [searching, setSearching] = useState(false);
   const searchInputRef = useRef(null);
 
-  const [visibleCount, setVisibleCount] = useState(20);
-  const [prevCategory, setPrevCategory] = useState(activeCategory);
-  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery);
-
-  if (activeCategory !== prevCategory || searchQuery !== prevSearchQuery) {
-    setPrevCategory(activeCategory);
-    setPrevSearchQuery(searchQuery);
-    setVisibleCount(20);
-  }
-
-  const observer = useRef();
-  const lastElementRef = useCallback((node) => {
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setVisibleCount((prev) => prev + 20);
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, []);
-
   const handleYtSearch = useCallback(async () => {
     if (!ytQuery.trim()) return;
     setSearching(true);
     try {
       setSearchResults(await searchYouTube(ytQuery));
     } catch (err) {
-      logger.warn('YouTube search failed:', err);
+      console.warn('YouTube search failed:', err);
     }
     setSearching(false);
   }, [ytQuery]);
@@ -149,16 +127,13 @@ export default function SoundBrowser({ onAddChannel, onAddVisual, onSaveResource
       />
 
       <div className={styles.soundGrid}>
-        {filteredBuiltins.slice(0, visibleCount).map((sound, i) => (
+        {filteredBuiltins.map((sound, i) => (
           <div key={`${sound.name}-${i}`} className={styles.soundCard} onClick={() => addBuiltin(sound)}>
             <span className={styles.soundIcon}>{sound.icon}</span>
             <span className={styles.soundName}>{sound.name}</span>
           </div>
         ))}
       </div>
-      {visibleCount < filteredBuiltins.length && (
-        <div ref={lastElementRef} style={{ height: '1px', flexShrink: 0 }} />
-      )}
     </div>
   );
 }
