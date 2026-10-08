@@ -9,7 +9,7 @@ export function searchYouTube(query, maxResults = 10) {
     const output = execSync(cmd, { timeout: 30000, encoding: 'utf-8' }).trim();
     if (!output) return [];
 
-    const lines = output.split('\n').filter(Boolean);
+    const lines = output.trim().split('\n').filter(Boolean);
     return lines.map((line) => {
       try {
         const item = JSON.parse(line);

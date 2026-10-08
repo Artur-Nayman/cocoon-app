@@ -1,6 +1,8 @@
 import { execSync } from 'child_process';
 
-export function extractAudioUrl(youtubeUrl) {
+const execAsync = promisify(exec);
+
+export async function extractAudioUrl(youtubeUrl) {
   // Try best audio format — for regular videos this returns a direct playable URL
   // For live streams this may return an HLS URL
   const strategies = [
