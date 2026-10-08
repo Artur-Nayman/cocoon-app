@@ -1,15 +1,25 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { execFileSync } from 'child_process';
 
-const execAsync = promisify(exec);
-
-export async function searchYouTube(query, maxResults = 10) {
-  const safeQuery = query.replace(/"/g, '\\"');
-  const jsRuntime = process.env.YT_DLP_JS || '--js-runtimes node';
+export function searchYouTube(query, maxResults = 10) {
+  const jsRuntimeRaw = process.env.YT_DLP_JS || '--js-runtimes node';
+  const jsRuntimeArgs = jsRuntimeRaw.split(' ').filter(Boolean);
 
   try {
-    const cmd = `yt-dlp ${jsRuntime} --flat-playlist --dump-json "ytsearch${maxResults}:${safeQuery}" 2>/dev/null`;
-    const { stdout: output } = await execAsync(cmd, { timeout: 30000, encoding: 'utf-8' });
+    const args = [
+      ...jsRuntimeArgs,
+      '--flat-playlist',
+      '--dump-json',
+      `ytsearch${maxResults}:${query}`
+    ];
+
+    // Using execFileSync avoids shell interpretation of the query,
+    // mitigating command injection vulnerabilities.
+    // stdio: ['ignore', 'pipe', 'ignore'] mimics the previous 2>/dev/null behavior
+    const output = execFileSync('yt-dlp', args, {
+      timeout: 30000,
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
     if (!output) return [];
 
     const lines = output.trim().split('\n').filter(Boolean);
