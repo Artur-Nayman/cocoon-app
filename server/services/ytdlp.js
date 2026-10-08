@@ -1,6 +1,9 @@
-import { execSync } from 'child_process';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
-export function extractAudioUrl(youtubeUrl) {
+const execAsync = promisify(exec);
+
+export async function extractAudioUrl(youtubeUrl) {
   // Try best audio format — for regular videos this returns a direct playable URL
   // For live streams this may return an HLS URL
   const strategies = [
@@ -19,7 +22,8 @@ export function extractAudioUrl(youtubeUrl) {
   for (const flags of strategies) {
     try {
       const cmd = `yt-dlp ${jsRuntime} ${flags} "${youtubeUrl}" 2>/dev/null`;
-      const output = execSync(cmd, { timeout: 30000, encoding: 'utf-8' }).trim();
+      const { stdout } = await execAsync(cmd, { timeout: 30000, encoding: 'utf-8' });
+      const output = stdout.trim();
       const lines = output.split('\n').filter(Boolean);
       const url = lines[0];
       if (url && url.startsWith('http')) return url;
