@@ -10,7 +10,7 @@ router.get('/search', async (req, res) => {
   }
 
   try {
-    const results = searchYouTube(q.trim(), Number(max) || 10);
+    const results = await searchYouTube(q.trim(), Number(max) || 10);
     res.json({ success: true, results });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
