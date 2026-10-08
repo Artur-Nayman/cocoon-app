@@ -19,7 +19,8 @@
     "electron:dev": "NODE_ENV=development electron . --dev",
     "electron:build:linux": "npm run build && electron-builder --linux",
     "electron:build:win": "npm run build && electron-builder --win",
-    "electron:build:all": "npm run build && electron-builder --linux --win"
+    "electron:build:all": "npm run build && electron-builder --linux --win",
+    "test": "vitest run"
   },
   "build": {
     "appId": "com.cocoon.app",
@@ -54,6 +55,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
