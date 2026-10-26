@@ -11,7 +11,7 @@ describe('searchYouTube', () => {
     vi.clearAllMocks();
   });
 
-  it('should parse valid yt-dlp json output correctly', () => {
+  it('should parse valid yt-dlp json output correctly', async () => {
     const mockOutput = [
       JSON.stringify({
         id: '123',
@@ -31,7 +31,7 @@ describe('searchYouTube', () => {
 
     vi.mocked(execSync).mockReturnValue(mockOutput);
 
-    const results = searchYouTube('test query');
+    const results = await searchYouTube('test query');
 
     expect(execSync).toHaveBeenCalledWith(
       expect.stringContaining('yt-dlp'),
@@ -65,13 +65,13 @@ describe('searchYouTube', () => {
     });
   });
 
-  it('should handle empty output', () => {
+  it('should handle empty output', async () => {
     vi.mocked(execSync).mockReturnValue('');
-    const results = searchYouTube('empty query');
+    const results = await searchYouTube('empty query');
     expect(results).toEqual([]);
   });
 
-  it('should skip invalid JSON lines and still return valid ones', () => {
+  it('should skip invalid JSON lines and still return valid ones', async () => {
     const mockOutput = [
       'invalid json here',
       JSON.stringify({ id: 'valid_id', title: 'Valid Title' }),
@@ -79,33 +79,35 @@ describe('searchYouTube', () => {
     ].join('\n');
 
     vi.mocked(execSync).mockReturnValue(mockOutput);
-    const results = searchYouTube('mixed query');
+    const results = await searchYouTube('mixed query');
 
     expect(results).toHaveLength(1);
     expect(results[0].id).toBe('valid_id');
   });
 
-  it('should return empty array and catch error when execSync throws', () => {
+  it('should return empty array and catch error when execSync throws', async () => {
     vi.mocked(execSync).mockImplementation(() => {
       throw new Error('Command failed');
     });
 
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    const results = searchYouTube('error query');
+    const results = await searchYouTube('error query');
 
     expect(results).toEqual([]);
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      '[youtubeSearch] yt-dlp search failed:',
-      'Command failed'
+      '[youtubeSearch] fallback search failed:',
+      'offline'
     );
+    vi.unstubAllGlobals();
 
     consoleWarnSpy.mockRestore();
   });
 
-  it('should escape double quotes in the query safely', () => {
-    vi.mocked(execSync).mockReturnValue('');
-    searchYouTube('query with "quotes"');
+  it('should escape double quotes in the query safely', async () => {
+    vi.mocked(execSync).mockReturnValue('{"id":"x"}');
+    await searchYouTube('query with "quotes"');
 
     expect(execSync).toHaveBeenCalledWith(
       expect.stringContaining('ytsearch10:query with \\"quotes\\"'),

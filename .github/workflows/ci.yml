@@ -5,59 +5,61 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+    - cron: '0 6 * * *' # nightly: catches yt-dlp / YouTube breakage
 
 jobs:
-  build-and-lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run lint
-        run: npm run lint
-
-      - name: Build frontend
-        run: npm run build
-
-  build-electron:
-    needs: build-and-lint
+  test:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - name: Unit tests
+        run: npm test
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Multiple audio layers play simultaneously
+        run: npm run test:audio
 
+      - name: yt-dlp binary runs
+        run: npm run test:ytdlp -- -t "binary runs"
+      # ponytail: YouTube often blocks CI IPs, so this one warns instead of failing
+      - name: yt-dlp can extract audio from YouTube
+        continue-on-error: true
+        run: npm run test:ytdlp -- -t "extracts"
+
+  build-electron:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - run: npm ci
       - name: Build Electron App (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: npm run electron:build:linux
-
       - name: Build Electron App (Windows)
         if: matrix.os == 'windows-latest'
         run: npm run electron:build:win
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: electron-app-${{ matrix.os }}
           path: release/

@@ -16,10 +16,10 @@ describe('extractAudioUrl', () => {
     delete process.env.YT_DLP_JS;
   });
 
-  it('should successfully extract audio url on the first strategy', () => {
+  it('should successfully extract audio url on the first strategy', async () => {
     vi.mocked(childProcess.execSync).mockReturnValueOnce(mockAudioUrl + '\n');
 
-    const result = extractAudioUrl(mockYoutubeUrl);
+    const result = await extractAudioUrl(mockYoutubeUrl);
 
     expect(result).toBe(mockAudioUrl);
     expect(childProcess.execSync).toHaveBeenCalledTimes(1);
@@ -27,7 +27,7 @@ describe('extractAudioUrl', () => {
     expect(cmd).toContain('--format "bestaudio[protocol!=http_dash_segments]" --get-url');
   });
 
-  it('should fallback to subsequent strategies if earlier ones fail', () => {
+  it('should fallback to subsequent strategies if earlier ones fail', async () => {
     // Strategy 1 throws error
     vi.mocked(childProcess.execSync).mockImplementationOnce(() => {
       throw new Error('Command failed');
@@ -35,7 +35,7 @@ describe('extractAudioUrl', () => {
     // Strategy 2 returns successful url
     vi.mocked(childProcess.execSync).mockReturnValueOnce(mockAudioUrl + '\n');
 
-    const result = extractAudioUrl(mockYoutubeUrl);
+    const result = await extractAudioUrl(mockYoutubeUrl);
 
     expect(result).toBe(mockAudioUrl);
     expect(childProcess.execSync).toHaveBeenCalledTimes(2);
@@ -47,34 +47,34 @@ describe('extractAudioUrl', () => {
     expect(cmd2).toContain('--format "bestaudio" --get-url');
   });
 
-  it('should fallback if a strategy returns invalid non-http url', () => {
+  it('should fallback if a strategy returns invalid non-http url', async () => {
     // Strategy 1 returns non-http
     vi.mocked(childProcess.execSync).mockReturnValueOnce('invalid-url\n');
     // Strategy 2 returns successful url
     vi.mocked(childProcess.execSync).mockReturnValueOnce(mockAudioUrl + '\n');
 
-    const result = extractAudioUrl(mockYoutubeUrl);
+    const result = await extractAudioUrl(mockYoutubeUrl);
 
     expect(result).toBe(mockAudioUrl);
     expect(childProcess.execSync).toHaveBeenCalledTimes(2);
   });
 
-  it('should return null when all strategies fail', () => {
+  it('should return null when all strategies fail', async () => {
     vi.mocked(childProcess.execSync).mockImplementation(() => {
       throw new Error('Command failed');
     });
 
-    const result = extractAudioUrl(mockYoutubeUrl);
+    const result = await extractAudioUrl(mockYoutubeUrl);
 
     expect(result).toBeNull();
     expect(childProcess.execSync).toHaveBeenCalledTimes(4); // There are 4 strategies in the code
   });
 
-  it('should use process.env.YT_DLP_JS in the command when provided', () => {
+  it('should use process.env.YT_DLP_JS in the command when provided', async () => {
     process.env.YT_DLP_JS = '--js-runtimes bun';
     vi.mocked(childProcess.execSync).mockReturnValueOnce(mockAudioUrl + '\n');
 
-    const result = extractAudioUrl(mockYoutubeUrl);
+    const result = await extractAudioUrl(mockYoutubeUrl);
 
     expect(result).toBe(mockAudioUrl);
     expect(childProcess.execSync).toHaveBeenCalledTimes(1);

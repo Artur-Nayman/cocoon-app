@@ -15,7 +15,10 @@
     "electron:dev": "electron electron/main.cjs",
     "electron:build:win": "node scripts/fetch-ytdlp.mjs win && vite build && electron-builder --win",
     "electron:build:linux": "node scripts/fetch-ytdlp.mjs linux && vite build && electron-builder --linux",
-    "electron:build:all": "node scripts/fetch-ytdlp.mjs all && vite build && electron-builder --linux --win"
+    "electron:build:all": "node scripts/fetch-ytdlp.mjs all && vite build && electron-builder --linux --win",
+    "test": "vitest run server src",
+    "test:audio": "node tests/audio-simultaneous.e2e.mjs",
+    "test:ytdlp": "node scripts/fetch-ytdlp.mjs && vitest run tests/ytdlp-live.test.js"
   },
   "build": {
     "appId": "com.cocoon.app",
@@ -53,7 +56,6 @@
       ]
     }
   },
-
   "dependencies": {
     "express": "^4.21.0",
     "react": "^19.2.6",
@@ -61,6 +63,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
@@ -68,6 +72,9 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
-    "vite": "^8.0.12"
+    "jsdom": "^29.1.1",
+    "playwright": "^1.64.1",
+    "vite": "^8.0.12",
+    "vitest": "^5.0.5"
   }
 }
